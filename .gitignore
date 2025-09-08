@@ -1,0 +1,25 @@
+# Arquivos de configuração e credenciais
+.env
+
+# Banco de dados local (não precisa no repositório)
+*.db
+*.db-shm
+*.db-wal
+
+# Dependências do Node.js (podem ser reinstaladas com npm install)
+node_modules/
+módulos_nó/
+
+# Logs
+*.log
+
+# Arquivos temporários
+*.tmp
+*.temp
+.DS_Store
+Thumbs.db
+
+# Compilações e cache
+dist/
+build/
+.cache/
