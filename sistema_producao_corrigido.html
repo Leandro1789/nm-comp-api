@@ -1,0 +1,3696 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>COMPENSADOS NM - Sistema Completo de Produção Industrial</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #1e40af;
+            --success-color: #16a34a;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --info-color: #0891b2;
+            --dark-color: #1f2937;
+            --light-color: #f8fafc;
+            --border-color: #e2e8f0;
+            --forest-green: #22c55e;
+            --nature-brown: #8b5a3c;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: 'Segoe UI', 'Tahoma', sans-serif; 
+            background: linear-gradient(135deg, var(--forest-green), var(--primary-color)); 
+            color: var(--dark-color); 
+            min-height: 100vh; 
+            padding: 20px; 
+        }
+        
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .header { 
+            text-align: center; 
+            color: white; 
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+        }
+        
+        .company-logo-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .company-logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .company-info h1 {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+            letter-spacing: 2px;
+        }
+        
+        .company-info p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        
+        /* O antigo .nav-tabs é agora o menu lateral, estilizado abaixo */
+        .tab-content { 
+            display: none; 
+            background: white; 
+            padding: 2rem; 
+            border-radius: 15px; /* Arredondado em todos os cantos */
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
+            min-height: 600px;
+        }
+        
+        .tab-content.active { display: block; }
+        
+        .btn { 
+            padding: 0.75rem 1.5rem; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            margin: 0.25rem; 
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-primary { background: var(--primary-color); color: white; }
+        .btn-success { background: var(--success-color); color: white; }
+        .btn-warning { background: var(--warning-color); color: white; }
+        .btn-danger { background: var(--danger-color); color: white; }
+        .btn-info { background: var(--info-color); color: white; }
+        .btn-secondary { background: #6b7280; color: white; }
+        .btn-sm { padding: 0.5rem 1rem; font-size: 0.875rem; }
+        
+        .table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .table th, .table td { 
+            padding: 0.75rem; 
+            border-bottom: 1px solid var(--border-color); 
+            text-align: left;
+        }
+        
+        .table th { 
+            background: var(--primary-color); 
+            color: white; 
+            font-weight: 600;
+        }
+        
+        .table tbody tr:hover { 
+            background-color: var(--light-color); 
+        }
+        
+        .form-group { 
+            margin-bottom: 1rem; 
+        }
+        
+        .form-group label { 
+            display: block; 
+            margin-bottom: 0.5rem; 
+            font-weight: bold; 
+            color: var(--dark-color);
+        }
+        
+        .form-group input, .form-group select, .form-group textarea { 
+            width: 100%; 
+            padding: 0.75rem; 
+            border: 2px solid var(--border-color); 
+            border-radius: 8px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group select, .input-group input {
+            flex-grow: 1;
+        }
+        
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+        
+        .alert-info { background: #dbeafe; color: #1e40af; border-left: 4px solid var(--info-color); }
+        .alert-success { background: #dcfce7; color: #16a34a; border-left: 4px solid var(--success-color); }
+        .alert-warning { background: #fef3c7; color: #d97706; border-left: 4px solid var(--warning-color); }
+        .alert-danger { background: #fee2e2; color: #dc2626; border-left: 4px solid var(--danger-color); }
+        
+        .card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            border-top: 4px solid var(--primary-color);
+        }
+        
+        .card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 2rem 0;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin-top: 1rem;
+        }
+
+        .connection-status {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .connection-status.connected {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .connection-status.disconnected {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .connection-status.connecting {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .db-config {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .db-config label {
+            color: white;
+            margin-bottom: 0.5rem;
+            display: block;
+            font-weight: 600;
+        }
+
+        .db-config input, .db-config select {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: var(--dark-color);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            background: var(--success-color);
+            color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1001;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: var(--danger-color);
+        }
+
+        .notification.warning {
+            background: var(--warning-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform: scale(0.95);
+            opacity: 0;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .modal.show .modal-content {
+            transform: scale(1);
+            opacity: 1;
+        }
+        
+        .close {
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: var(--danger-color);
+        }
+
+        .codigo-input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: flex-end;
+        }
+
+        .codigo-input-group input {
+            flex: 1;
+        }
+
+        .codigo-input-group button {
+            white-space: nowrap;
+        }
+        
+        .gerencial-header {
+            background: linear-gradient(135deg, var(--forest-green), var(--primary-color));
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .gerencial-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 2px solid var(--border-color);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+        
+        .gerencial-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .gerencial-main-panel {
+            flex: 3;
+            min-width: 500px;
+        }
+
+        .gerencial-side-panel {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .turno-title {
+            background: linear-gradient(135deg, var(--warning-color), #f59e0b);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+
+        .mesa-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .mesa-card {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+
+        .mesa-card:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); 
+        }
+
+        .mesa-header { 
+            background: #ffc107; 
+            color: #000; 
+            padding: 0.5rem;
+            margin: -1rem -1rem 0.5rem -1rem; 
+            border-radius: 6px 6px 0 0;
+            font-weight: bold; 
+            font-size: 0.875rem;
+        }
+
+        .mesa-value { 
+            font-weight: 800; 
+            font-size: 1.25rem; 
+        }
+
+        .valor-azul { 
+            color: #1d4ed8; 
+            font-weight: 800; 
+            font-size: 28px; 
+            line-height: 1.1; 
+        }
+
+        .card-topo-amarelo {
+            background: #f59e0b; 
+            color: #000; 
+            font-weight: 700; 
+            text-align: center;
+            padding: 8px 10px; 
+            border-top-left-radius: 10px; 
+            border-top-right-radius: 10px; 
+            letter-spacing: 0.2px;
+        }
+
+        .total-turno .mesa-header { 
+            background: #1f2937; 
+            color: #fff; 
+        }
+
+        .produto-selecionado-display {
+            background-color: #eef2ff;
+            color: var(--secondary-color);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            min-height: 45px;
+            border: 1px solid #c7d2fe;
+        }
+        
+        .pagination-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 1.5rem;
+            gap: 0.5rem;
+        }
+
+        tr.is-editing td {
+            background-color: #fffbeb !important;
+        }
+        
+        #esqGerencialTbody tr {
+            cursor: pointer;
+        }
+
+        #esqGerencialTbody tr.selected-day {
+            background-color: #dbeafe !important;
+            font-weight: bold;
+        }
+        
+        .perc-list {
+            list-style: none;
+            padding: 0;
+        }
+        .perc-list li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .perc-list li:last-child {
+            border-bottom: none;
+        }
+        .perc-list .tamanho { font-size: 0.9rem; }
+        .perc-list .valor { font-weight: 600; }
+        .perc-list .percentual { color: var(--primary-color); font-weight: bold; }
+
+        .table td input, .table td select {
+            padding: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* INÍCIO: ESTILOS DO MENU LATERAL */
+        .main-layout {
+            /* display: flex; ALINHAVA O MENU E CONTEÚDO LADO A LADO. REMOVIDO PARA O MENU SER SOBREPOSTO. */
+            /* gap: 20px; */
+            /* align-items: flex-start; */
+        }
+
+        .sidebar {
+            position: fixed; /* O menu agora é fixo e fica fora do fluxo normal da página */
+            left: 0;
+            top: 0;
+            height: 100%;
+            z-index: 1002;
+            transform: translateX(-100%); /* Começa escondido à esquerda */
+            transition: transform 0.3s ease-in-out;
+            width: 280px; /* Largura padrão do menu quando aberto */
+            background: white;
+            border-radius: 0 15px 15px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .sidebar.is-open {
+            transform: translateX(0);
+        }
+
+        .sidebar .nav-tabs {
+            flex-direction: column;
+            justify-content: flex-start;
+            padding: 0.5rem;
+            list-style: none;
+            overflow: visible; /* Remover o overflow hidden do original */
+        }
+        
+        .sidebar .nav-tab {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            text-align: left;
+            padding: 0.9rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            font-size: 0.9rem;
+            background: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: var(--dark-color);
+        }
+        
+        .sidebar .nav-tab:hover {
+            background-color: var(--light-color);
+            transform: none; /* Sobrescreve o efeito hover do menu horizontal */
+        }
+
+        .sidebar .nav-tab.active {
+            background: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+        
+        .sidebar .nav-tab .icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 12px;
+            opacity: 0.6;
+            transition: all 0.3s ease;
+            stroke-width: 2;
+        }
+
+        .sidebar .nav-tab:hover .icon {
+            opacity: 1;
+        }
+
+        .sidebar .nav-tab.active .icon {
+            opacity: 1;
+            /* A cor do ícone (stroke) é alterada para branco via CSS filter */
+            filter: brightness(0) invert(1);
+        }
+        
+        .main-content {
+            width: 100%; /* Garante que o conteúdo principal ocupe toda a largura */
+            min-width: 0;
+        }
+
+        .mobile-menu-toggle {
+            display: flex; /* Alterado de 'none' para 'flex' para sempre ser visível */
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .mobile-menu-toggle svg {
+            width: 24px;
+            height: 24px;
+            margin: auto;
+        }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1001; /* Fica abaixo do menu e acima do conteúdo */
+        }
+
+        /* FIM: ESTILOS DO MENU LATERAL */
+
+
+        /* INÍCIO: RESPONSIVIDADE */
+        /* As regras de responsividade do menu (@media max-width: 1200px e 992px) foram removidas,
+           pois o comportamento de abrir/fechar agora é padrão para todas as telas. */
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            .header {
+                padding: 1.5rem;
+            }
+            .company-info h1 {
+                font-size: 2rem;
+            }
+            .company-logo {
+                width: 80px;
+                height: 80px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        /* FIM: RESPONSIVIDADE */
+    </style>
+</head>
+<body>
+    <div class="connection-status disconnected" id="connectionStatus">Desconectado</div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    <div class="notification" id="notification"></div>
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <div class="container">
+        <div class="header">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Abrir menu">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+            </button>
+            <div class="company-logo-section">
+                <img alt="COMPENSADOS NM" class="company-logo" src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgdmlld0JveD0iMCAwIDEyMCAxMjAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxkZWZzPgo8bGluZWFyR3JhZGllbnQgaWQ9ImZvcmVzdEdyYWRpZW50IiB4MT0iMCUiIHkxPSIwJSIgeDI9IjEwMCUiIHkyPSIxMDAlIj4KPHN0b3Agb2Zmc2V0PSIwJSIgc3R5bGU9InN0b3AtY29sb3I6IzIyYzU1ZTtzdG9wLW9wYWNpdHk6MSIgLz4KPHN0b3Agb2Zmc2V0PSIxMDAlIiBzdHlsZT0ic3RvcC1jb2xvcjojMTZhMzRhO3N0b3Atb3BhY2l0eToxIiAvPgo8L2xpbmVhckdyYWRpZW50Pgo8L2RlZnM+CjxyZWN0IHdpZHRoPSIxMjAiIGhlaWdodD0iMTIwIiByeD0iMTUiIGZpbGw9InVybCgjZm9yZXN0R3JhZGllbnQpIiAvPgo8dGV4dCB4PSI2MCIgeT0iNDUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIyNCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIj5OTTwvdGV4dD4KPHRleHQgeD0iNjAiIHk9IjgwIiBmb250LWZhbWlseT0iQXJpYWwsIHNhbnMtc2VyaWYiIGZvbnQtc2l6ZT0iOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkNPTUEVOU0FET1M8L3RleHQ+Cjxwb2x5Z29uIHBvaW50cz0iMjAsMzAgNDAsNDAgNjAsNDUgODAsNDAgMTAwLDMwIDEwMCw5NSAyMCw5NSIgZmlsbD0icmdiYSgyNTUsMjU1LDI1NSwwLjEpIiAvPgo8cG9seWdvbiBwb2ludHM9IjMwLDM1IDUwLDQwIDcwLDQyIDkwLDQwIDExMCwzNSAxMTAsODAgMzAsODAiIGZpbGw9InmdiYSgyNTUsMjU1LDI1NSwwLjA1KSIvPgo8L3N2Zz4="/>
+                <div class="company-info">
+                    <h1>COMPENSADOS NM</h1>
+                    <p>Sistema Completo de Controle de Produção Industrial</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="db-config">
+            <h3 style="color: white; margin-bottom: 1rem;">Configuração do Servidor</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dbHost">Host/Servidor</label>
+                    <input id="dbHost" placeholder="localhost ou IP do servidor" type="text" value="localhost"/>
+                </div>
+                <div class="form-group">
+                    <label for="dbPort">Porta</label>
+                    <input id="dbPort" placeholder="3001" type="number" value="3001"/>
+                </div>
+            </div>
+            <div style="text-align: center;">
+                <button class="btn btn-success" id="btnConectar">Conectar ao Servidor</button>
+                <button class="btn btn-info" onclick="testarConexao()">Testar Conexão</button>
+            </div>
+        </div>
+        
+        <div class="main-layout">
+            <aside class="sidebar" id="sidebar">
+                <nav>
+                    <!-- O ID navTabs é mantido para compatibilidade com o JS existente -->
+                    <ul class="nav-tabs" id="navTabs">
+                        <li><button class="nav-tab active" data-tab="dashboard"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg><span>Dashboard</span></button></li>
+                        <li><button class="nav-tab" data-tab="gerencial"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2v6h6M2.66 15.57a10 10 0 1 0 .57-8.38"/></svg><span>Gerencial</span></button></li>
+                        <li><button class="nav-tab" data-tab="gerencial-acabamento"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10M18 20V4M6 20v-4"/></svg><span>Gerencial Acab.</span></button></li>
+                        <li><button class="nav-tab" data-tab="importar"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg><span>Importar</span></button></li>
+                        <li><button class="nav-tab" data-tab="produtos"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg><span>Produtos</span></button></li>
+                        <li><button class="nav-tab" data-tab="turnos"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg><span>Turnos</span></button></li>
+                        <li><button class="nav-tab" data-tab="producao"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="5"/><path d="M12 1v1M23 12h-1M12 23v-1M1 12H0"/></svg><span>Produção</span></button></li>
+                        <li><button class="nav-tab" data-tab="esquadrejadeira"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/></svg><span>Esquadrejadeira</span></button></li>
+                        <li><button class="nav-tab" data-tab="descarte"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg><span>Descarte</span></button></li>
+                        <li><button class="nav-tab" data-tab="consulta"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg><span>Consulta</span></button></li>
+                        <li><button class="nav-tab" data-tab="relatorios"><svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span>Relatórios</span></button></li>
+                    </ul>
+                </nav>
+            </aside>
+            <main class="main-content">
+                <!-- Dashboard -->
+                <div class="tab-content active" id="dashboard">
+                    <h2>Dashboard de Produção</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalProdutos">0</div>
+                            <div>Produtos Cadastrados</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalProducao">0</div>
+                            <div>Total Produzido (m³)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalDescarte">0</div>
+                            <div>Total Descarte (Chapas)</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="eficiencia">0%</div>
+                            <div>Eficiência</div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Produção por Turno (m³)</h3>
+                        <div class="chart-container">
+                            <canvas id="chartProducaoTurno"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Evolução da Produção nos Últimos 30 Dias (m³)</h3>
+                        <div class="chart-container">
+                            <canvas id="chartEvolucaoProducao"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gerencial -->
+                <div class="tab-content" id="gerencial">
+                    <div class="gerencial-header" style="margin-bottom: 12px; display: flex; align-items: center; flex-wrap: wrap;">
+                        <label for="filtroDataGerencial" style="font-weight:600; margin-right: 0.5rem;">Selecione a data:</label>
+                        <input id="filtroDataGerencial" type="date" style="margin-right: 1rem;"/>
+                        <button class="btn btn-success" onclick="App.logic.sync.updateGerencial()">Atualizar</button>
+                        <button class="btn btn-info" onclick="exportarPrintGerencial()">📸 Exportar Prints Gerenciais</button>
+                    </div>
+                    
+                    <div class="gerencial-section" id="totaisGeraisDia">
+                        <div class="turno-title">Totais gerais do dia</div>
+                        <div class="mesa-grid" id="cardsTotaisDia"></div>
+                    </div>
+                    
+                    <div class="gerencial-section" id="mediasMes">
+                        <div class="turno-title">Resumo do Mês</div>
+                        <div class="mesa-grid" id="cardsMediasMes"></div>
+                    </div>
+                    
+                    <div class="gerencial-section" id="secao1T">
+                        <div class="turno-title">1º TURNO</div>
+                        <div class="mesa-grid" id="grid1T"></div>
+                    </div>
+                    
+                    <div class="gerencial-section" id="secao2T">
+                        <div class="turno-title">2º TURNO</div>
+                        <div class="mesa-grid" id="grid2T"></div>
+                    </div>
+                    
+                    <div class="gerencial-section" id="secao3ElevEsteira" data-tabela="turno3-elevada-esteira">
+                        <div class="turno-title">3º TURNO • MESA ELEVADA • ESTEIRA</div>
+                        <div class="mesa-grid" id="grid3ElevEsteira"></div>
+                    </div>
+                    
+                    <div class="gerencial-section">
+                        <div class="turno-title">Produção Semanal por Família (m³)</div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Exportação</th>
+                                        <th>Plastificado</th>
+                                        <th>Resinado</th>
+                                        <th>Moveleiro</th>
+                                        <th>T. Diário</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbodySemanal"></tbody>
+                                <tfoot>
+                                    <tr style="font-weight:bold; background:#fff7ed;">
+                                        <td>Média Semanal</td>
+                                        <td id="mediaSemanalExportacao">0.000</td>
+                                        <td id="mediaSemanalPlastificado">0.000</td>
+                                        <td id="mediaSemanalResinado">0.000</td>
+                                        <td id="mediaSemanalMoveleiro">0.000</td>
+                                        <td id="mediaSemanalGeral">0.000</td>
+                                    </tr>
+                                    <tr style="font-weight:bold; background:#dcfce7;">
+                                        <td>Acumulado Semanal</td>
+                                        <td id="totalSemanalExportacao">0.000</td>
+                                        <td id="totalSemanalPlastificado">0.000</td>
+                                        <td id="totalSemanalResinado">0.000</td>
+                                        <td id="totalSemanalMoveleiro">0.000</td>
+                                        <td id="totalSemanalGeral">0.000</td>
+                                    </tr>
+                                    <tr style="font-weight: bold; background-color: #cff4fc;">
+                                        <td>Acumulado Mensal</td>
+                                        <td id="totalMensalExportacao">0.000</td>
+                                        <td id="totalMensalPlastificado">0.000</td>
+                                        <td id="totalMensalResinado">0.000</td>
+                                        <td id="totalMensalMoveleiro">0.000</td>
+                                        <td id="totalMensalGeral">0.000</td>
+                                    </tr>
+                                    <tr style="font-weight: bold; background:#eef2ff;">
+                                        <td>% no mês</td>
+                                        <td id="percentMensalExportacao">0,0%</td>
+                                        <td id="percentMensalPlastificado">0,0%</td>
+                                        <td id="percentMensalResinado">0,0%</td>
+                                        <td id="percentMensalMoveleiro">0,0%</td>
+                                        <td id="percentMensalGeral">100,0%</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Gerencial Acabamento -->
+                <div class="tab-content" id="gerencial-acabamento">
+                    <div class="card">
+                        <div class="form-row" style="align-items: center; justify-content: space-between;">
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="esqGerencialDataRef">Data de Referência</label>
+                                <input type="date" id="esqGerencialDataRef" />
+                            </div>
+                            <h3 id="esqGerencialTituloSemana" style="margin-bottom: 0; border: none; text-align: center;"></h3>
+                            <div>
+                                <button id="btnSemanaAnterior" class="btn btn-secondary">⟵ Semana Anterior</button>
+                                <button id="btnSemanaSeguinte" class="btn btn-secondary">Semana Seguinte ⟶</button>
+                                <button class="btn btn-info" onclick="exportarPrintGerencialAcabamento()">📸 Exportar Print</button>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <div class="gerencial-container">
+                        <div class="gerencial-main-panel">
+                            <div class="card">
+                                <h3>Produção Semanal por Turno (Esquadrejadeira)</h3>
+                                <div class="table-container">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Dia da Semana</th>
+                                                <th>1º Turno (chapas | m³)</th>
+                                                <th>2º Turno (chapas | m³)</th>
+                                                <th>Total Dia (chapas | m³)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="esqGerencialTbody">
+                                            <!-- 7 Linhas serão geradas aqui via JS -->
+                                        </tbody>
+                                        <tfoot>
+                                            <tr style="font-weight:bold; background:#fff7ed;">
+                                                <td>Média Semanal</td>
+                                                <td id="esqGerencialMedia1T">0 | 0.000</td>
+                                                <td id="esqGerencialMedia2T">0 | 0.000</td>
+                                                <td id="esqGerencialMediaTotal">0 | 0.000</td>
+                                            </tr>
+                                            <tr style="font-weight:bold; background:#dcfce7;">
+                                                <td>Acumulado Semanal</td>
+                                                <td id="esqGerencialAcumulado1T">0 | 0.000</td>
+                                                <td id="esqGerencialAcumulado2T">0 | 0.000</td>
+                                                <td id="esqGerencialAcumuladoTotal">0 | 0.000</td>
+                                            </tr>
+                                            <tr style="font-weight: bold; background-color: #cff4fc;">
+                                                <td>Acumulado Mensal (MTD)</td>
+                                                <td id="esqGerencialMtd1T">0 | 0.000</td>
+                                                <td id="esqGerencialMtd2T">0 | 0.000</td>
+                                                <td id="esqGerencialMtdTotal">0 | 0.000</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="gerencial-side-panel">
+                            <div class="card" id="esqGerencialPercentuais">
+                                <h3>Percentual por Tamanho (m³)</h3>
+                                <div class="card" style="border-top-color: var(--info-color);">
+                                    <h4 id="percDiaTitulo" style="font-size: 1rem; color: var(--info-color);">% do Dia (DD/MM/YYYY)</h4>
+                                    <ul id="percDiaContainer" class="perc-list"><li>Nenhum dia selecionado.</li></ul>
+                                </div>
+                                <div class="card" style="margin-bottom: 0; border-top-color: var(--success-color);">
+                                    <h4 style="font-size: 1rem; color: var(--success-color);">% no Mês (Acumulado)</h4>
+                                    <ul id="percMesContainer" class="perc-list"><li>Nenhum dado no mês.</li></ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Importar -->
+                <div class="tab-content" id="importar">
+                    <div class="card">
+                        <h3>Importar Produtos</h3>
+                        <div class="alert alert-info">
+                            <strong>Instruções:</strong> Selecione um arquivo Excel (.xlsx ou .xls).
+                            As colunas necessárias são: CODIGO, DESCRIÇÃO PRODUTO, COMPRIMENTO, LARGURA, BITOLA.
+                        </div>
+                        <input accept=".xlsx,.xls" class="form-group" id="fileInput" type="file"/>
+                        <button class="btn btn-primary" onclick="importarArquivo()">Processar Arquivo</button>
+                        <div class="alert" id="importStatus" style="display: none;"></div>
+                    </div>
+                </div>
+
+                <!-- Produtos -->
+                <div class="tab-content" id="produtos">
+                    <div class="card">
+                        <h3>Catálogo de Produtos</h3>
+                        <button class="btn btn-primary" onclick="abrirModalProduto()">Novo Produto</button>
+                        <button class="btn btn-success" onclick="exportarProdutos()">Exportar Produtos</button>
+                        
+                        <div class="form-group">
+                            <label for="buscarProduto">Buscar Produto</label>
+                            <input id="buscarProduto" placeholder="Digite para buscar..." type="text"/>
+                        </div>
+                        
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th data-sort="Codigo" style="cursor: pointer;">Código</th>
+                                        <th data-sort="Descricao" style="cursor: pointer;">Descrição</th>
+                                        <th data-sort="Comprimento_m" style="cursor: pointer;">Comprimento</th>
+                                        <th data-sort="Largura_m" style="cursor: pointer;">Largura</th>
+                                        <th data-sort="Bitola_m" style="cursor: pointer;">Bitola</th>
+                                        <th data-sort="FamiliaID" style="cursor: pointer;">Família</th>
+                                        <th data-sort="Cubagem_m3" style="cursor: pointer;">Cubagem (m³)</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="produtosTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Turnos -->
+                <div class="tab-content" id="turnos">
+                    <div class="card">
+                        <h3>Gestão de Turnos</h3>
+                        <button class="btn btn-primary" onclick="abrirModalTurno()">Novo Turno</button>
+                        <button class="btn btn-success" onclick="exportarTurnos()">Exportar Turnos</button>
+                        
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nome do Turno</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="turnosTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Produção -->
+                <div class="tab-content" id="producao">
+                     <!-- PAINEL DE CONTROLE DE DATA E TOTAIS -->
+                    <div class="card" style="background-color: #f1f5f9; border-top-color: var(--info-color);">
+                        <div class="form-row" style="align-items: flex-end; margin-bottom: 0;">
+                            <div class="form-group">
+                                <label for="dataReferencia" style="font-weight: bold;">📅 Data de Referência</label>
+                                <input id="dataReferencia" type="date"/>
+                            </div>
+                            <div class="form-group">
+                                <div class="stat-card" style="padding: 1rem; background: var(--secondary-color);">
+                                    <div style="font-size: 0.9rem; opacity: 0.8;">Total Chapas (dia)</div>
+                                    <div class="stat-value" id="totalChapasDia" style="font-size: 1.5rem; margin-bottom: 0;">0</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="stat-card" style="padding: 1rem; background: var(--success-color);">
+                                    <div style="font-size: 0.9rem; opacity: 0.8;">Total Volume (dia)</div>
+                                    <div class="stat-value" id="totalVolumeDia" style="font-size: 1.5rem; margin-bottom: 0;">0.000 m³</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Registro de Produção</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="codigoInput">Código do Produto *</label>
+                                <div class="codigo-input-group">
+                                    <input id="codigoInput" placeholder="Digite o código e tecle Enter" type="text"/>
+                                    <button class="btn btn-info btn-sm" onclick="toggleSelect('produtoCodigo')" type="button">Ver Lista</button>
+                                </div>
+                                <select id="produtoCodigo" style="margin-top: 0.5rem; display: none;"></select>
+                                <div id="descricaoProdutoPreview" style="margin-top: 0.5rem; font-weight: 600; color: #1e40af;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="quantidade">Quantidade (chapas) *</label>
+                                <input id="quantidade" min="1" required step="1" type="number"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="turnoDetalhado">Turno *</label>
+                                <select id="turnoDetalhado" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataProducao">Data da Produção *</label>
+                                <input id="dataProducao" required type="date"/>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" id="btnRegistrarProducao" onclick="registrarProducao()">Registrar Produção (Ctrl+Enter)</button>
+                    </div>
+
+                    <div class="card">
+                        <h3>Lançamentos do Dia</h3>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Código</th>
+                                        <th>Descrição</th>
+                                        <th>Qtd.</th>
+                                        <th>Turno</th>
+                                        <th>Cubagem (m³)</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="producaoDiaTbody">
+                                    <!-- Linhas inseridas via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Esquadrejadeira -->
+                <div class="tab-content" id="esquadrejadeira">
+                    <!-- PAINEL DE CONTROLE DE DATA E TOTAIS -->
+                    <div class="card" style="background-color: #f1f5f9; border-top-color: var(--info-color);">
+                        <div class="form-row" style="align-items: flex-end; margin-bottom: 0;">
+                            <div class="form-group">
+                                <label for="dataRefEsq" style="font-weight: bold;">📅 Data de Referência</label>
+                                <input id="dataRefEsq" type="date"/>
+                            </div>
+                            <div class="form-group">
+                                <div class="stat-card" style="padding: 1rem; background: var(--secondary-color);">
+                                    <div style="font-size: 0.9rem; opacity: 0.8;">Total Chapas (dia)</div>
+                                    <div class="stat-value" id="totalChapasEsqDia" style="font-size: 1.5rem; margin-bottom: 0;">0</div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="stat-card" style="padding: 1rem; background: var(--success-color);">
+                                    <div style="font-size: 0.9rem; opacity: 0.8;">Total Volume (dia)</div>
+                                    <div class="stat-value" id="totalVolumeEsqDia" style="font-size: 1.5rem; margin-bottom: 0;">0.000 m³</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- CARD REGISTRO -->
+                    <div class="card">
+                        <h3>Registro de Produção (Esquadrejadeira)</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="codigoEsqInput">Código do Produto *</label>
+                                <div class="codigo-input-group">
+                                    <input id="codigoEsqInput" placeholder="Digite o código e tecle Enter" type="text"/>
+                                    <button class="btn btn-info btn-sm" onclick="toggleSelect('produtoCodigoEsq')" type="button">Ver Lista</button>
+                                </div>
+                                <select id="produtoCodigoEsq" style="margin-top: 0.5rem; display: none;"></select>
+                                <div id="descricaoProdutoEsqPreview" style="margin-top: 0.5rem; font-weight: 600; color: #1e40af;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="quantidadeEsq">Quantidade (chapas) *</label>
+                                <input id="quantidadeEsq" min="1" required step="1" type="number"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="turnoEsq">Turno *</label>
+                                <select id="turnoEsq" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataEsq">Data da Produção *</label>
+                                <input id="dataEsq" required type="date"/>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" id="btnRegistrarEsq">Registrar (Ctrl+Enter)</button>
+                    </div>
+                
+                    <!-- CARD LANÇAMENTOS -->
+                    <div class="card">
+                        <h3>Lançamentos do Dia (Esquadrejadeira)</h3>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Código</th>
+                                        <th>Descrição</th>
+                                        <th>Qtd.</th>
+                                        <th>Turno</th>
+                                        <th>Cubagem (m³)</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="esqDiaTbody">
+                                    <!-- Linhas inseridas via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Descarte -->
+                <div class="tab-content" id="descarte">
+                    <div class="card">
+                        <h3>Registrar Descarte</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="codigoDescarteInput">Produto para Descarte *</label>
+                                <div class="codigo-input-group">
+                                    <input id="codigoDescarteInput" placeholder="Digite o código ou descrição" type="text" list="produtosDescarteDataList" autocomplete="off"/>
+                                    <datalist id="produtosDescarteDataList"></datalist>
+                                </div>
+                                <div id="produtoSelecionadoDescarte" class="produto-selecionado-display">Nenhum produto selecionado.</div>
+                            </div>
+                            <div class="form-group">
+                                <label for="tipoDescarte">Tipo de Descarte *</label>
+                                <input id="tipoDescarte" list="tiposDescarteDataList" required placeholder="Selecione ou digite um tipo" />
+                                <datalist id="tiposDescarteDataList">
+                                   <!-- Preenchido via JS -->
+                                </datalist>
+                            </div>
+                            <div class="form-group">
+                                <label for="quantidadeDescarte">Quantidade (chapas) *</label>
+                                <input id="quantidadeDescarte" min="1" required step="1" type="number"/>
+                            </div>
+                        </div>
+                         <div class="form-row">
+                            <div class="form-group">
+                                <label for="turnoDescarte">Turno *</label>
+                                <select id="turnoDescarte" required></select>
+                            </div>
+                            <div class="form-group">
+                                <label for="dataDescarte">Data do Descarte *</label>
+                                <input id="dataDescarte" required type="date"/>
+                            </div>
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label for="descarteObs">Observações</label>
+                                <textarea id="descarteObs" rows="1"></textarea>
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" id="btnRegistrarDescarte" onclick="registrarDescarte()">Registrar Descarte (Ctrl+Enter)</button>
+                    </div>
+
+                    <div class="card">
+                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                            <h3>Descartes do Dia</h3>
+                            <div class="form-group" style="margin-bottom: 0;">
+                                <label for="dataTabelaDescartes" style="margin-bottom: 0.25rem;">Data da Tabela</label>
+                                <input id="dataTabelaDescartes" type="date" />
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="table" id="tabelaDescartesDia">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Código</th>
+                                        <th>Produto</th>
+                                        <th>Tipo de Descarte</th>
+                                        <th>Qtd.</th>
+                                        <th>Turno</th>
+                                        <th>Obs</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="descartesDiaTbody"></tbody>
+                            </table>
+                        </div>
+                        <div id="paginationDescartes" class="pagination-controls"></div>
+                    </div>
+                </div>
+
+                <!-- Consulta -->
+                <div class="tab-content" id="consulta">
+                    <div class="card">
+                        <h3>Consulta e Filtros</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="tipoConsulta">Tipo de Consulta</label>
+                                <select id="tipoConsulta">
+                                    <option value="producao">Produção</option>
+                                    <option value="descarte">Descarte</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtroDataInicio">Data Início</label>
+                                <input id="filtroDataInicio" type="date"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtroDataFim">Data Fim</label>
+                                <input id="filtroDataFim" type="date"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtroTurno">Turno(s) (Ctrl+Click para vários)</label>
+                                <select id="filtroTurno" multiple style="height: 120px;">
+                                    <!-- Options will be populated by JavaScript -->
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtros condicionais para Produção -->
+                        <div id="filtrosProducao" class="form-row">
+                            <div class="form-group">
+                                <label for="filtroProduto">Produto</label>
+                                <select id="filtroProduto">
+                                    <option value="">Todos os produtos</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtroMesa">Mesa</label>
+                                <select id="filtroMesa">
+                                    <option value="">Todas as mesas</option>
+                                    <option value="MESA 1">Mesa 1</option>
+                                    <option value="MESA 2">Mesa 2</option>
+                                    <option value="MESA 3">Mesa 3</option>
+                                    <option value="MESA 4">Mesa 4</option>
+                                    <option value="ESTEIRA">Esteira</option>
+                                    <option value="MESA ELEVADA">Mesa Elevada</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filtroFamilia">Família</label>
+                                <select id="filtroFamilia">
+                                    <option value="">Todas as famílias</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Filtros condicionais para Descarte -->
+                        <div id="filtrosDescarte" class="form-row" style="display: none;">
+                            <div class="form-group">
+                                <label for="filtroTipoDescarte">Tipo de Descarte</label>
+                                <select id="filtroTipoDescarte">
+                                    <option value="">Todos os tipos</option>
+                                    <option value="FALHA PRENSA">Falha Prensa</option>
+                                    <option value="FALHA MIOLO">Falha Miolo</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary" onclick="aplicarFiltros()">Aplicar Filtros</button>
+                        <button class="btn btn-secondary" onclick="limparFiltros()">Limpar Filtros</button>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Resultados da Consulta</h3>
+                        <div id="resultadosConsulta">
+                            <p style="text-align: center; color: #666;">Aplique os filtros para ver os resultados.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Relatórios -->
+                <div class="tab-content" id="relatorios">
+                    <div class="card">
+                        <h3>Exportar Relatórios</h3>
+                        <p>Exporte os dados de produção e descarte para um arquivo Excel.</p>
+                        <div style="margin-top: 1.5rem;">
+                            <button class="btn btn-success" onclick="exportarRelatorio('producao')">Exportar Produção</button>
+                            <button class="btn btn-danger" onclick="exportarRelatorio('descarte')">Exportar Descarte</button>
+                            <button class="btn btn-info" onclick="exportarRelatorio('completo')">Relatório Completo</button>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Modal para Produto -->
+    <div class="modal" id="modalProduto">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalProduto')">×</span>
+            <h3 id="tituloModalProduto">Novo Produto</h3>
+            <div class="form-group">
+                <label for="modalCodigo">Código *</label>
+                <input id="modalCodigo" required type="text"/>
+            </div>
+            <div class="form-group">
+                <label for="modalDescricao">Descrição *</label>
+                <input id="modalDescricao" required type="text"/>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="modalComprimento">Comprimento (m)</label>
+                    <input id="modalComprimento" step="0.01" type="number"/>
+                </div>
+                <div class="form-group">
+                    <label for="modalLargura">Largura (m)</label>
+                    <input id="modalLargura" step="0.01" type="number"/>
+                </div>
+                <div class="form-group">
+                    <label for="modalBitola">Bitola (m)</label>
+                    <input id="modalBitola" step="0.001" type="number"/>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="modalFamiliaID">Família</label>
+                <select id="modalFamiliaID"></select>
+            </div>
+            <div style="text-align: right; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="fecharModal('modalProduto')">Cancelar</button>
+                <button class="btn btn-success" onclick="salvarProduto()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Turno -->
+    <div class="modal" id="modalTurno">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalTurno')">×</span>
+            <h3 id="tituloModalTurno">Novo Turno</h3>
+            <div class="form-group">
+                <label for="modalNomeTurno">Nome do Turno *</label>
+                <input id="modalNomeTurno" required type="text"/>
+            </div>
+            <div style="text-align: right; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="fecharModal('modalTurno')">Cancelar</button>
+                <button class="btn btn-success" onclick="salvarTurno()">Salvar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Editar Produção -->
+    <div class="modal" id="modalEditarProducao">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('modalEditarProducao')">×</span>
+            <h3 id="tituloModalEditarProducao">Editar Lançamento de Produção</h3>
+            <div class="form-group">
+                <label>Produto</label>
+                <p id="modalEditarProducaoDescricao" style="font-weight: bold; color: var(--dark-color); padding: 0.5rem; background: #f1f5f9; border-radius: 8px;"></p>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="modalEditarQuantidade">Quantidade (chapas) *</label>
+                    <input id="modalEditarQuantidade" min="1" required step="1" type="number"/>
+                </div>
+                <div class="form-group">
+                    <label for="modalEditarTurno">Turno *</label>
+                    <select id="modalEditarTurno" required></select>
+                </div>
+                <div class="form-group">
+                    <label for="modalEditarData">Data da Produção *</label>
+                    <input id="modalEditarData" required type="date"/>
+                </div>
+            </div>
+            <div style="text-align: right; margin-top: 2rem;">
+                <button class="btn btn-secondary" onclick="fecharModal('modalEditarProducao')">Cancelar</button>
+                <button class="btn btn-success" onclick="salvarProducaoEditada()">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Modal de Confirmação -->
+    <div class="modal" id="confirmModal">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h4 id="confirmModalTitle" style="margin-bottom: 1.5rem;">Você tem certeza?</h4>
+            <p id="confirmModalText" style="margin-bottom: 2rem;"></p>
+            <div>
+                <button class="btn btn-secondary" onclick="fecharModal('confirmModal')">Cancelar</button>
+                <button class="btn btn-danger" id="confirmOk">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sistema Principal
+        const App = {
+            state: {
+                API_BASE_URL: 'http://localhost:3001',
+                isConnected: false,
+                dataReferencia: null,
+                dataRefEsq: null, 
+                setorEsquadrejadeiraId: null,
+                esqGerencial: { // NOVO: Estado para a nova aba gerencial
+                    currentDate: null,
+                    selectedDay: null,
+                    turno1Id: null,
+                    turno2Id: null,
+                },
+                dataTabelaDescartes: null,
+                descarteCurrentPage: 1,
+                descarteRowsPerPage: 50,
+                charts: {
+                    producaoTurno: null,
+                    evolucaoProducao: null
+                },
+                cache: {
+                    produtos: [],
+                    turnos: [],
+                    setores: [],
+                    familias: [],
+                    tiposDescarte: [],
+                    producao: [],
+                    descarte: [],
+                    descartesDoDia: [],
+                },
+                editingProduct: null,
+                editingTurno: null,
+                editingProducao: null,
+                sortConfig: {
+                    key: 'Codigo',
+                    direction: 'ascending'
+                }
+            },
+
+            // Utilitários
+            utils: {
+                async apiCall(endpoint, options = {}) {
+                    App.ui.showLoading(true);
+                    try {
+                        const response = await fetch(`${App.state.API_BASE_URL}${endpoint}`, {
+                            headers: { 'Content-Type': 'application/json' },
+                            ...options
+                        });
+
+                        const contentType = response.headers.get("content-type");
+                        if (contentType && contentType.indexOf("application/json") !== -1) {
+                            const result = await response.json();
+                            if (!response.ok) {
+                                throw new Error(result.error || `Erro do servidor: ${response.status}`);
+                            }
+                            return result;
+                        } else {
+                            const textResponse = await response.text();
+                            if (!response.ok) {
+                                 console.error("O servidor retornou uma resposta não-JSON:", textResponse);
+                                 throw new Error(`Erro inesperado do servidor (Status: ${response.status}). Verifique o console do servidor.`);
+                            }
+                            console.warn("Resposta inesperada (mas bem-sucedida) do servidor:", textResponse);
+                            return { message: "Resposta não-JSON recebida do servidor." };
+                        }
+                    } catch (error) {
+                        console.error(`API call to ${endpoint} failed:`, error);
+                        const userMessage = error.message.includes("JSON") 
+                            ? "Erro de comunicação com o servidor. A resposta não era JSON." 
+                            : error.message;
+                        App.ui.showNotification(`Erro: ${userMessage}`, 'error');
+                        throw error;
+                    } finally {
+                        App.ui.showLoading(false);
+                    }
+                },
+
+                $(selector) {
+                    return document.querySelector(selector);
+                },
+
+                getValue(selector) {
+                    const el = this.$(selector);
+                    return el ? el.value : '';
+                },
+
+                setText(selector, text) {
+                    const el = this.$(selector);
+                    if (el) el.textContent = text;
+                },
+
+                getTodayDateString() {
+                    return new Date().toISOString().split('T')[0];
+                },
+                
+                getYesterdayDateString() {
+                    const yesterday = new Date();
+                    yesterday.setDate(yesterday.getDate() - 1);
+                    return yesterday.toISOString().split('T')[0];
+                },
+
+                debounce(func, delay) {
+                    let timeout;
+                    return function(...args) {
+                        const context = this;
+                        clearTimeout(timeout);
+                        timeout = setTimeout(() => func.apply(context, args), delay);
+                    };
+                }
+            },
+
+            // Interface do usuário
+            ui: {
+                showLoading(show) {
+                    const overlay = App.utils.$('#loadingOverlay');
+                    if (overlay) overlay.style.display = show ? 'flex' : 'none';
+                },
+
+                showNotification(message, type = 'success') {
+                    const notification = App.utils.$('#notification');
+                    if (notification) {
+                        notification.textContent = message;
+                        notification.className = `notification show ${type}`;
+                        setTimeout(() => notification.classList.remove('show'), 4000);
+                    }
+                },
+
+                updateConnectionStatus(status) {
+                    const statusEl = App.utils.$('#connectionStatus');
+                    if (!statusEl) return;
+                    statusEl.className = 'connection-status';
+                    switch (status) {
+                        case 'connected':
+                            App.state.isConnected = true;
+                            statusEl.textContent = 'Conectado';
+                            statusEl.classList.add('connected');
+                            break;
+                        case 'disconnected':
+                            App.state.isConnected = false;
+                            statusEl.textContent = 'Desconectado';
+                            statusEl.classList.add('disconnected');
+                            break;
+                        case 'connecting':
+                            App.state.isConnected = false;
+                            statusEl.textContent = 'Conectando...';
+                            statusEl.classList.add('connecting');
+                            break;
+                    }
+                },
+
+                toggleModal(modalId, show) {
+                    const modal = App.utils.$(`#${modalId}`);
+                    if (modal) modal.classList.toggle('show', show);
+                },
+
+                populateSelect(selectId, data, valueField, textField) {
+                    const select = App.utils.$(`#${selectId}`);
+                    if (!select) return;
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">Selecione...</option>';
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item[valueField];
+                        option.textContent = item[textField];
+                        select.appendChild(option);
+                    });
+                    if (currentValue) select.value = currentValue;
+                }
+            },
+
+            // Lógica do aplicativo
+            logic: {
+                // Carregamento de dados
+                async loadAllData() {
+                    try {
+                        await Promise.all([
+                            this.loadProdutos(),
+                            this.loadTurnos(),
+                            this.loadFamilias(),
+                            this.loadSetores(),
+                            this.loadProducao(),
+                            this.loadDescarte(),
+                            this.loadTiposDescarte()
+                        ]);
+                        this.loadDashboard();
+                        this.populateFiltrosConsulta();
+                        this.populateProdutosDataList();
+                    } catch (error) {
+                        console.error('Erro ao carregar dados:', error);
+                    }
+                },
+
+                async loadProdutos() {
+                    App.state.cache.produtos = await App.utils.apiCall('/produtos');
+                    this.renderProdutos();
+                },
+
+                async loadTurnos() {
+                    App.state.cache.turnos = await App.utils.apiCall('/turnos');
+                    this.renderTurnos();
+                },
+
+                async loadFamilias() {
+                    App.state.cache.familias = await App.utils.apiCall('/familias');
+                    App.ui.populateSelect('modalFamiliaID', App.state.cache.familias, 'FamiliaID', 'FamiliaNome');
+                },
+                
+                async loadTiposDescarte() {
+                    try {
+                        App.state.cache.tiposDescarte = await App.utils.apiCall('/tipos-descarte');
+                        this.populateTiposDescarteDataList();
+                    } catch (error) {
+                        console.error("Erro ao carregar tipos de descarte:", error);
+                        App.ui.showNotification("Não foi possível carregar os tipos de descarte.", "warning");
+                        App.state.cache.tiposDescarte = [];
+                        this.populateTiposDescarteDataList();
+                    }
+                },
+
+                populateTiposDescarteDataList() {
+                    const dataList = App.utils.$('#tiposDescarteDataList');
+                    if (!dataList) return;
+                    
+                    dataList.innerHTML = ''; 
+                    
+                    const tipos = new Set(App.state.cache.tiposDescarte.map(tipo => tipo.Nome));
+                    
+                    const defaultTipos = [
+                        "FALHA PRENSA", "FALHA MIOLO", "ESTOURADA", "PRÉ CURA", "CAPA VAZADA",
+                        "LAMINA DESBITOLADA", "SERRA", "DESCOLADA", "CAPA DOBRADA", "FALHA CORTE",
+                        "ERRO CAMADA", "EMPENO", "QUEBRADA", "FALHA CAPA", "EMPILHADEIRA",
+                        "CAPA CURTA", "FALHA LIXADEIRA", "DEFEITO DE CAPA", "FALHA FILME",
+                        "RECORTE", "MOTIVO NÃO ESPECIFICADO", "FALHA CABECEIRA", "TORTA"
+                    ];
+                    defaultTipos.forEach(defaultTipo => tipos.add(defaultTipo));
+                    
+                    tipos.forEach(nome => {
+                        const option = document.createElement('option');
+                        option.value = nome;
+                        dataList.appendChild(option);
+                    });
+                },
+
+                async loadSetores() {
+                    App.state.cache.setores = await App.utils.apiCall('/setores');
+                    const setorEsq = App.state.cache.setores.find(s => s.SetorNome.toUpperCase() === 'ESQUADREJADEIRA');
+                    App.state.setorEsquadrejadeiraId = setorEsq ? setorEsq.SetorID : 3; // Fallback para 3
+                },
+
+                async loadProducao() {
+                    App.state.cache.producao = await App.utils.apiCall('/producao');
+                },
+
+                async loadDescarte() {
+                    App.state.cache.descarte = await App.utils.apiCall('/descarte');
+                },
+
+                async loadDashboard() {
+                    try {
+                        const { produtos, producao: allProducao, descarte, setores } = App.state.cache;
+                        
+                        let setorEsqId = App.state.setorEsquadrejadeiraId;
+                        if (!setorEsqId && setores.length > 0) {
+                             const setorEsq = setores.find(s => s.SetorNome.toUpperCase() === 'ESQUADREJADEIRA');
+                             setorEsqId = setorEsq ? setorEsq.SetorID : 3; 
+                             App.state.setorEsquadrejadeiraId = setorEsqId;
+                        }
+                        
+                        const producaoGeral = allProducao.filter(p => p.SetorID !== setorEsqId);
+                        const totalProdutos = produtos.length;
+                        
+                        const totalProducaoM3 = producaoGeral.reduce((sum, p) => {
+                            const produto = produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                            return sum + (produto ? (produto.Cubagem_m3 || 0) * (p.Quantidade_Chapas || 0) : 0);
+                        }, 0);
+
+                        const totalDescarteChapas = descarte.reduce((sum, d) => sum + (d.Quantidade_Chapas || 0), 0);
+                        
+                        const totalDescarteM3 = descarte.reduce((sum, d) => {
+                            const produto = produtos.find(prod => prod.ProdutoID === d.ProdutoID);
+                            return sum + (produto ? (produto.Cubagem_m3 || 0) * (d.Quantidade_Chapas || 0) : 0);
+                        }, 0);
+
+                        const eficiencia = (totalProducaoM3 + totalDescarteM3) > 0 
+                            ? (totalProducaoM3 / (totalProducaoM3 + totalDescarteM3)) * 100 
+                            : 0;
+                        
+                        App.utils.setText('#totalProdutos', totalProdutos);
+                        App.utils.setText('#totalProducao', totalProducaoM3.toFixed(4));
+                        App.utils.setText('#totalDescarte', totalDescarteChapas);
+                        App.utils.setText('#eficiencia', `${eficiencia.toFixed(2)}%`);
+
+                        this.updateCharts(producaoGeral); 
+                    } catch (error) {
+                        console.error('Erro ao calcular dashboard:', error);
+                        App.utils.setText('#totalProdutos', '0');
+                        App.utils.setText('#totalProducao', '0.0000');
+                        App.utils.setText('#totalDescarte', '0');
+                        App.utils.setText('#eficiencia', '0.00%');
+                    }
+                },
+
+                renderProdutos() {
+                    const tbody = App.utils.$('#produtosTbody');
+                    if (!tbody) return;
+
+                    const { key, direction } = App.state.sortConfig;
+                    if (key) {
+                        App.state.cache.produtos.sort((a, b) => {
+                            const valA = a[key] === null || a[key] === undefined ? '' : a[key];
+                            const valB = b[key] === null || b[key] === undefined ? '' : b[key];
+
+                            let comparison = 0;
+                            if (typeof valA === 'string' && typeof valB === 'string') {
+                                comparison = valA.localeCompare(valB, 'pt-BR', { sensitivity: 'base' });
+                            } else {
+                                comparison = valA > valB ? 1 : (valA < valB ? -1 : 0);
+                            }
+                            return direction === 'ascending' ? comparison : -comparison;
+                        });
+                    }
+
+                    document.querySelectorAll('#produtos thead th[data-sort]').forEach(th => {
+                        const baseText = th.dataset.baseText || th.textContent.replace(/[↕↑↓]/g, '').trim();
+                        if (!th.dataset.baseText) th.dataset.baseText = baseText;
+
+                        let indicator = ' ↕';
+                        if (th.dataset.sort === key) {
+                            indicator = direction === 'ascending' ? ' ↑' : ' ↓';
+                        }
+                        th.textContent = baseText + indicator;
+                    });
+                    
+                    tbody.innerHTML = App.state.cache.produtos.map(p => `
+                        <tr>
+                            <td>${p.Codigo}</td>
+                            <td>${p.Descricao}</td>
+                            <td>${(p.Comprimento_m || 0).toFixed(2)}</td>
+                            <td>${(p.Largura_m || 0).toFixed(2)}</td>
+                            <td>${(p.Bitola_m || 0).toFixed(3)}</td>
+                            <td>${this.getFamiliaNome(p.FamiliaID)}</td>
+                            <td><strong>${(p.Cubagem_m3 || 0).toFixed(6)} m³</strong></td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editarProduto(${p.ProdutoID})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="excluirProduto(${p.ProdutoID})">Excluir</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    
+                    App.ui.populateSelect('filtroProduto', App.state.cache.produtos, 'ProdutoID', 'Descricao');
+                },
+
+                populateProdutosDataList() {
+                    const dataList = App.utils.$('#produtosDescarteDataList');
+                    if(!dataList) return;
+                    dataList.innerHTML = App.state.cache.produtos.map(p => 
+                        `<option value="${p.Codigo}">${p.Descricao}</option>`
+                    ).join('');
+                },
+
+                async loadConsultaData() {
+                    this.initConsulta();
+                    this.populateFiltrosConsulta();
+                },
+
+                renderTurnos() {
+                    const tbody = App.utils.$('#turnosTbody');
+                    if (!tbody) return;
+                    
+                    tbody.innerHTML = App.state.cache.turnos.map(t => `
+                        <tr>
+                            <td><strong>${t.TurnoID}</strong></td>
+                            <td>${t.TurnoNome}</td>
+                            <td><span style="background: var(--success-color); color: white; padding: 0.25rem 0.5rem; border-radius: 4px;">${t.Ativo || 'SIM'}</span></td>
+                            <td>
+                                <button class="btn btn-sm btn-warning" onclick="editarTurno(${t.TurnoID})">Editar</button>
+                                <button class="btn btn-sm btn-danger" onclick="excluirTurno(${t.TurnoID})">Excluir</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                    
+                    App.ui.populateSelect('turnoDetalhado', App.state.cache.turnos, 'TurnoID', 'TurnoNome');
+                    App.ui.populateSelect('turnoDescarte', App.state.cache.turnos, 'TurnoID', 'TurnoNome');
+                    App.ui.populateSelect('turnoEsq', App.state.cache.turnos, 'TurnoID', 'TurnoNome');
+
+                    const filtroTurnoSelect = App.utils.$('#filtroTurno');
+                    if (filtroTurnoSelect) {
+                        filtroTurnoSelect.innerHTML = '';
+                        App.state.cache.turnos.forEach(turno => {
+                            const option = document.createElement('option');
+                            option.value = turno.TurnoNome;
+                            option.textContent = turno.TurnoNome;
+                            filtroTurnoSelect.appendChild(option);
+                        });
+                    }
+                },
+
+                getFamiliaNome(familiaID) {
+                    const familia = App.state.cache.familias.find(f => f.FamiliaID === familiaID);
+                    return familia ? familia.FamiliaNome : 'N/A';
+                },
+
+                initProducaoTab() {
+                    App.utils.$('#dataProducao').value = App.state.dataReferencia;
+                    this.renderProducaoDoDia();
+                },
+                
+                setDataReferencia() {
+                    const novaData = App.utils.getValue('#dataReferencia');
+                    App.state.dataReferencia = novaData;
+                    localStorage.setItem('producao.dataReferencia', novaData);
+                    App.utils.$('#dataProducao').value = novaData;
+                    this.renderProducaoDoDia();
+                },
+
+                renderProducaoDoDia() {
+                    const tbody = App.utils.$('#producaoDiaTbody');
+                    if (!tbody) return;
+
+                    const dataFiltro = App.state.dataReferencia;
+                    const setorId = App.state.setorEsquadrejadeiraId;
+                    
+                    const producaoDoDia = App.state.cache.producao
+                        .filter(p => p.Data === dataFiltro && (p.SetorID !== setorId))
+                        .sort((a, b) => b.ProducaoID - a.ProducaoID);
+
+                    if (producaoDoDia.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Nenhum lançamento para ${new Date(dataFiltro + 'T00:00:00').toLocaleDateString('pt-BR')}.</td></tr>`;
+                    } else {
+                         tbody.innerHTML = producaoDoDia.map(p => {
+                            const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                            const turno = App.state.cache.turnos.find(t => t.TurnoID === p.TurnoID);
+                            const totalCubagem = produto ? (produto.Cubagem_m3 || 0) * (p.Quantidade_Chapas || 0) : 0;
+                            return `
+                                <tr id="producao-row-${p.ProducaoID}">
+                                    <td>${p.ProducaoID}</td>
+                                    <td>${produto ? produto.Codigo : 'N/A'}</td>
+                                    <td>${produto ? produto.Descricao : 'Produto não encontrado'}</td>
+                                    <td>${p.Quantidade_Chapas}</td>
+                                    <td>${turno ? turno.TurnoNome : 'N/A'}</td>
+                                    <td><strong>${totalCubagem.toFixed(6)} m³</strong></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning" onclick="abrirModalEditarProducao(${p.ProducaoID})">Editar</button>
+                                        <button class="btn btn-sm btn-danger" onclick="excluirProducao(${p.ProducaoID})">Excluir</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+                    this.updateTotaisDoDia(producaoDoDia);
+                },
+
+                updateTotaisDoDia(producaoDoDia) {
+                    const totalChapas = producaoDoDia.reduce((sum, p) => sum + (p.Quantidade_Chapas || 0), 0);
+                    const totalVolume = producaoDoDia.reduce((sum, p) => {
+                        const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                        const cubagem = produto ? (produto.Cubagem_m3 || 0) * (p.Quantidade_Chapas || 0) : 0;
+                        return sum + cubagem;
+                    }, 0);
+
+                    App.utils.setText('#totalChapasDia', totalChapas.toString());
+                    App.utils.setText('#totalVolumeDia', `${totalVolume.toFixed(3)} m³`);
+                },
+                
+                initEsquadrejadeiraTab() {
+                    App.utils.$('#dataEsq').value = App.state.dataRefEsq;
+                    App.ui.populateSelect('turnoEsq', App.state.cache.turnos, 'TurnoID', 'TurnoNome');
+                    App.ui.populateSelect('produtoCodigoEsq', App.state.cache.produtos, 'Codigo', 'Descricao');
+                    this.renderEsqDoDia();
+                },
+                
+                setDataRefEsq() {
+                    const novaData = App.utils.getValue('#dataRefEsq');
+                    App.state.dataRefEsq = novaData;
+                    localStorage.setItem('esq.dataRef', novaData);
+                    App.utils.$('#dataEsq').value = novaData;
+                    this.renderEsqDoDia();
+                },
+
+                async registrarProducaoEsq() {
+                    const btn = App.utils.$('#btnRegistrarEsq');
+                    btn.disabled = true;
+                    try {
+                        const codigo = App.utils.getValue('#codigoEsqInput') || App.utils.getValue('#produtoCodigoEsq');
+                        const produto = App.state.cache.produtos.find(p => p.Codigo == codigo);
+
+                        if (!produto) {
+                            return App.ui.showNotification('Produto não encontrado!', 'error');
+                        }
+                        if (!produto.Cubagem_m3 || produto.Cubagem_m3 <= 0) {
+                            return App.ui.showNotification('Produto sem dimensões (comprimento/largura/bitola). Não é possível calcular m³.', 'error');
+                        }
+
+                        const payload = {
+                            Data: App.utils.getValue('#dataEsq'),
+                            TurnoID: parseInt(App.utils.getValue('#turnoEsq'), 10),
+                            SetorID: App.state.setorEsquadrejadeiraId,
+                            ProdutoID: produto.ProdutoID,
+                            Quantidade_Chapas: parseInt(App.utils.getValue('#quantidadeEsq'), 10)
+                        };
+
+                        if (!payload.ProdutoID || !payload.Quantidade_Chapas || !payload.TurnoID || !payload.Data || !payload.SetorID || payload.Quantidade_Chapas <= 0) {
+                           return App.ui.showNotification('Por favor, preencha todos os campos obrigatórios corretamente.', 'error');
+                        }
+                        
+                        const novoLancamento = await App.utils.apiCall('/producao', { method: 'POST', body: JSON.stringify(payload) });
+
+                        if (novoLancamento && novoLancamento.ProducaoID) {
+                            App.state.cache.producao.push(novoLancamento);
+                            App.ui.showNotification("Lançamento registrado com sucesso!");
+                        } else {
+                            App.ui.showNotification(novoLancamento.message || "Lançamento registrado, atualizando lista...");
+                            await this.loadProducao();
+                        }
+
+                        App.utils.$('#codigoEsqInput').value = '';
+                        App.utils.$('#quantidadeEsq').value = '';
+                        App.utils.$('#produtoCodigoEsq').value = '';
+                        App.utils.$('#descricaoProdutoEsqPreview').textContent = '';
+                        App.utils.$('#codigoEsqInput').focus();
+
+                        this.renderEsqDoDia();
+                        this.loadDashboard();
+                    } finally {
+                        btn.disabled = false;
+                    }
+                },
+
+                renderEsqDoDia() {
+                    const tbody = App.utils.$('#esqDiaTbody');
+                    if (!tbody) return;
+
+                    const dataFiltro = App.state.dataRefEsq;
+                    const setorId = App.state.setorEsquadrejadeiraId;
+                    
+                    const producaoDoDia = App.state.cache.producao
+                        .filter(p => p.Data === dataFiltro && p.SetorID === setorId)
+                        .sort((a, b) => b.ProducaoID - a.ProducaoID);
+
+                    if (producaoDoDia.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Nenhum lançamento para ${new Date(dataFiltro + 'T00:00:00').toLocaleDateString('pt-BR')}.</td></tr>`;
+                    } else {
+                         tbody.innerHTML = producaoDoDia.map(p => {
+                            const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                            const turno = App.state.cache.turnos.find(t => t.TurnoID === p.TurnoID);
+                            const totalCubagem = produto ? (produto.Cubagem_m3 || 0) * (p.Quantidade_Chapas || 0) : 0;
+                            return `
+                                <tr id="producao-row-${p.ProducaoID}">
+                                    <td>${p.ProducaoID}</td>
+                                    <td>${produto ? produto.Codigo : 'N/A'}</td>
+                                    <td>${produto ? produto.Descricao : 'Produto não encontrado'}</td>
+                                    <td>${p.Quantidade_Chapas}</td>
+                                    <td>${turno ? turno.TurnoNome : 'N/A'}</td>
+                                    <td><strong>${totalCubagem.toFixed(6)} m³</strong></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-warning" onclick="abrirModalEditarProducao(${p.ProducaoID})">Editar</button>
+                                        <button class="btn btn-sm btn-danger" onclick="excluirProducao(${p.ProducaoID})">Excluir</button>
+                                    </td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+                    this.updateTotaisDoDiaEsq(producaoDoDia);
+                },
+
+                updateTotaisDoDiaEsq(producaoDoDia) {
+                    const totalChapas = producaoDoDia.reduce((sum, p) => sum + (p.Quantidade_Chapas || 0), 0);
+                    const totalVolume = producaoDoDia.reduce((sum, p) => {
+                        const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                        const cubagem = produto ? (produto.Cubagem_m3 || 0) * (p.Quantidade_Chapas || 0) : 0;
+                        return sum + cubagem;
+                    }, 0);
+
+                    App.utils.setText('#totalChapasEsqDia', totalChapas.toString());
+                    App.utils.setText('#totalVolumeEsqDia', `${totalVolume.toFixed(3)} m³`);
+                },
+                
+                sync: {
+                    async updateGerencial() {
+                        const selDate = App.utils.getValue('#filtroDataGerencial') || App.utils.getTodayDateString();
+                        
+                        if(App.state.isConnected) {
+                            await Promise.all([
+                                App.logic.loadProducao(),
+                                App.logic.loadDescarte()
+                            ]);
+                        }
+
+                        const { producao: allProducao = [], produtos = [], turnos = [], familias = [], descarte = [] } = App.state.cache;
+
+                        const setorEsqId = App.state.setorEsquadrejadeiraId;
+                        const producao = allProducao.filter(p => p.SetorID !== setorEsqId);
+
+                        const produtoById = Object.fromEntries(produtos.map(p => [p.ProdutoID, p]));
+                        const turnoById = Object.fromEntries(turnos.map(t => [t.TurnoID, t]));
+                        const familiaById = Object.fromEntries(familias.map(f => [f.FamiliaID, f]));
+                        
+                        const fmt = (n) => (Number(n) || 0).toFixed(3); 
+                        const fmt2d = (n) => (Number(n) || 0).toFixed(2).replace('.',',');
+                        const fmtPerc = (n) => (Number(n) || 0).toFixed(1).replace('.',',');
+                        const fmtChapas = (n) => (Number(n) || 0).toFixed(0);
+
+                        const getM3 = (r) => {
+                           const produto = produtoById[r.ProdutoID];
+                           return produto ? (produto.Cubagem_m3 * r.Quantidade_Chapas) : 0;
+                        };
+                        
+                        const calcularPercentualDescarte = (producao, descarte) => {
+                            const total = producao + descarte;
+                            return total > 0 ? (descarte / total) * 100 : 0;
+                        };
+
+                        const classificarTurno = (turnoNome = '') => {
+                            const s = String(turnoNome).toUpperCase();
+                            if (s.includes('MESA ELEVADA')) return 'ELEVADA';
+                            if (s === 'ESTEIRA' || s.includes('ESTEIRA') || s.includes('PLASTICO MESA 1 ESTEIRA') || (s.includes('2º TURNO MESA') && s.includes('ESTEIRA'))) return 'ESTEIRA';
+                            if (s.includes('3º TURNO')) return '3T';
+                            if (s.includes('1º TURNO') && !s.includes('ESTEIRA') && !s.includes('MESA ELEVADA')) return '1T';
+                            if (s.includes('2º TURNO') && !s.includes('ESTEIRA') && !s.includes('MESA ELEVADA')) return '2T';
+                            return 'OUTRO';
+                        };
+                        
+                        const grupos = { '1T': 0, '2T': 0, '3T': 0, 'ELEVADA': 0, 'ESTEIRA': 0 };
+
+                        const recDiaProd = producao.filter(r => r.Data === selDate);
+                        const recDiaDesc = descarte.filter(r => r.Data === selDate);
+                        
+                        const totDiaProd = {...grupos};
+                        const totDiaDescM3 = {...grupos};
+                        const totDiaDescChapas = {...grupos};
+
+                        const totDiaProdElevada = { '1T': 0, '2T': 0 };
+                        const totDiaDescM3Elevada = { '1T': 0, '2T': 0 };
+                        const totDiaDescChapasElevada = { '1T': 0, '2T': 0 };
+
+                        for (const r of recDiaProd) {
+                            const turno = turnoById[r.TurnoID];
+                            const turnoNome = turno?.TurnoNome?.toUpperCase() || '';
+                            const grupo = classificarTurno(turnoNome);
+                            if (totDiaProd[grupo] !== undefined) totDiaProd[grupo] += getM3(r);
+                            
+                            if (grupo === 'ELEVADA') {
+                                if (turnoNome.includes('1º TURNO')) {
+                                    totDiaProdElevada['1T'] += getM3(r);
+                                } else if (turnoNome.includes('2º TURNO')) {
+                                    totDiaProdElevada['2T'] += getM3(r);
+                                }
+                            }
+                        }
+
+                        for (const r of recDiaDesc) {
+                            const turno = turnoById[r.TurnoID];
+                            const turnoNome = turno?.TurnoNome?.toUpperCase() || '';
+                            const grupo = classificarTurno(turnoNome);
+                            if (totDiaDescM3[grupo] !== undefined) {
+                                totDiaDescM3[grupo] += getM3(r);
+                                totDiaDescChapas[grupo] += (r.Quantidade_Chapas || 0);
+                            }
+
+                             if (grupo === 'ELEVADA') {
+                                if (turnoNome.includes('1º TURNO')) {
+                                    totDiaDescM3Elevada['1T'] += getM3(r);
+                                    totDiaDescChapasElevada['1T'] += (r.Quantidade_Chapas || 0);
+                                } else if (turnoNome.includes('2º TURNO')) {
+                                    totDiaDescM3Elevada['2T'] += getM3(r);
+                                    totDiaDescChapasElevada['2T'] += (r.Quantidade_Chapas || 0);
+                                }
+                            }
+                        }
+
+                        const totalGeralDiaProd = Object.values(totDiaProd).reduce((a, b) => a + b, 0);
+                        const totalGeralDiaDescM3 = Object.values(totDiaDescM3).reduce((a, b) => a + b, 0);
+                        const totalGeralDiaDescChapas = Object.values(totDiaDescChapas).reduce((a, b) => a + b, 0);
+
+                        const cardsTotaisDia = App.utils.$('#cardsTotaisDia');
+                        if (cardsTotaisDia) {
+                             cardsTotaisDia.innerHTML = [
+                                ['1º TURNO', totDiaProd['1T'], totDiaDescM3['1T'], totDiaDescChapas['1T']],
+                                ['2º TURNO', totDiaProd['2T'], totDiaDescM3['2T'], totDiaDescChapas['2T']],
+                                ['3º TURNO', totDiaProd['3T'], totDiaDescM3['3T'], totDiaDescChapas['3T']],
+                                ['MESA ELEVADA', totDiaProd['ELEVADA'], totDiaDescM3['ELEVADA'], totDiaDescChapas['ELEVADA']],
+                                ['ESTEIRA', totDiaProd['ESTEIRA'], totDiaDescM3['ESTEIRA'], totDiaDescChapas['ESTEIRA']],
+                                ['TOTAL GERAL', totalGeralDiaProd, totalGeralDiaDescM3, totalGeralDiaDescChapas]
+                            ].map(([label, valProd, valDescM3, valDescChapas]) => {
+                                const percDescarte = calcularPercentualDescarte(valProd, valDescM3);
+                                const descarteFormatado = `${fmt2d(valDescM3)} m³ | ${fmtChapas(valDescChapas)} chapas | ${fmtPerc(percDescarte)}%`;
+                                return `
+                                <div class="mesa-card">
+                                    <div class="mesa-header">${label}</div>
+                                    <div class="mesa-value valor-azul" style="margin-bottom: 0.25rem;">${fmt2d(valProd)} m³</div>
+                                    <div style="font-size: 0.8rem; color: var(--danger-color); font-weight: 600;">
+                                        Descarte: ${descarteFormatado}
+                                    </div>
+                                </div>`;
+                            }).join('');
+                        }
+                        
+                        const ym = selDate.slice(0, 7);
+                        const recMesProd = producao.filter(r => (r.Data || '').startsWith(ym) && r.Quantidade_Chapas > 0);
+                        const recMesDesc = descarte.filter(r => (r.Data || '').startsWith(ym));
+                                                
+                        const totMesProd = {...grupos};
+                        const totMesDescM3 = {...grupos};
+                        const totMesDescChapas = {...grupos};
+                        
+                        for (const r of recMesProd) {
+                            const turno = turnoById[r.TurnoID];
+                            const grupo = classificarTurno(turno?.TurnoNome || '');
+                            if (totMesProd[grupo] !== undefined) totMesProd[grupo] += getM3(r);
+                        }
+
+                        for (const r of recMesDesc) {
+                            const turno = turnoById[r.TurnoID];
+                            const grupo = classificarTurno(turno?.TurnoNome || '');
+                            if (totMesDescM3[grupo] !== undefined) {
+                                totMesDescM3[grupo] += getM3(r);
+                                totMesDescChapas[grupo] += (r.Quantidade_Chapas || 0);
+                            }
+                        }
+
+                        const totalGeralMesProd = Object.values(totMesProd).reduce((a, b) => a + b, 0);
+                        const totalGeralMesDescM3 = Object.values(totMesDescM3).reduce((a, b) => a + b, 0);
+                        const totalGeralMesDescChapas = Object.values(totMesDescChapas).reduce((a, b) => a + b, 0);
+                        
+                        const cardsMediasMes = App.utils.$('#cardsMediasMes');
+                        if (cardsMediasMes) {
+                             cardsMediasMes.innerHTML = [
+                                ['1º TURNO', totMesProd['1T'], totMesDescM3['1T'], totMesDescChapas['1T'], '1T'],
+                                ['2º TURNO', totMesProd['2T'], totMesDescM3['2T'], totMesDescChapas['2T'], '2T'],
+                                ['3º TURNO', totMesProd['3T'], totMesDescM3['3T'], totMesDescChapas['3T'], '3T'],
+                                ['MESA ELEVADA', totMesProd['ELEVADA'], totMesDescM3['ELEVADA'], totMesDescChapas['ELEVADA'], 'ELEVADA'],
+                                ['ESTEIRA', totMesProd['ESTEIRA'], totMesDescM3['ESTEIRA'], totMesDescChapas['ESTEIRA'], 'ESTEIRA'],
+                                ['TOTAIS', totalGeralMesProd, totalGeralMesDescM3, totalGeralMesDescChapas, 'TOTAIS']
+                            ].map(([label, prodAcumulada, descM3, descChapas, grupoId]) => {
+                                
+                                const diasComProducaoDoGrupo = new Set(
+                                    recMesProd
+                                        .filter(r => {
+                                            if (grupoId === 'TOTAIS') return true;
+                                            const turno = turnoById[r.TurnoID];
+                                            const grupo = classificarTurno(turno?.TurnoNome || '');
+                                            return grupo === grupoId;
+                                        })
+                                        .map(r => r.Data)
+                                );
+                                
+                                const divisorEspecifico = diasComProducaoDoGrupo.size > 0 ? diasComProducaoDoGrupo.size : 1;
+                                const prodMedia = prodAcumulada / divisorEspecifico;
+                                const mediaFormatada = diasComProducaoDoGrupo.size > 0 ? `${fmt2d(prodMedia)} m³/dia` : '—';
+                                
+                                const percDescarte = calcularPercentualDescarte(prodAcumulada, descM3);
+                                const descarteFormatado = `${fmt2d(descM3)} m³ | ${fmtChapas(descChapas)} chapas | ${fmtPerc(percDescarte)}%`;
+                                
+                                return `
+                                <div class="mesa-card">
+                                    <div class="mesa-header">${label}</div>
+                                     <div style="text-align: left; padding: 0.5rem; font-size: 0.9rem; min-height: 90px; display: flex; flex-direction: column; justify-content: center;">
+                                        <p style="margin-bottom: 0.25rem;"><strong>Produção Média:</strong> ${mediaFormatada}</p>
+                                        <p style="margin-bottom: 0.25rem;"><strong>Produção Acumulada:</strong> ${fmt2d(prodAcumulada)} m³</p>
+                                        <p><strong>Descarte:</strong> <span style="color: var(--danger-color); font-weight: 600;">${descarteFormatado}</span></p>
+                                    </div>
+                                </div>`;
+                            }).join('');
+                        }
+
+                        const somaMesa = (turnoGrupo, mesaNum) => recDiaProd.reduce((acc, r) => {
+                            const turno = turnoById[r.TurnoID];
+                            const turnoNome = turno?.TurnoNome?.toUpperCase() || '';
+                            if (classificarTurno(turnoNome) === turnoGrupo && turnoNome.includes('MESA ' + mesaNum)) {
+                                return acc + getM3(r);
+                            }
+                            return acc;
+                        }, 0);
+
+                        const renderGridTurno = (grupo, gridSel, descarteTurnoM3, descarteTurnoChapas) => {
+                            const grid = App.utils.$(gridSel);
+                            if (!grid) return;
+                            
+                            const mesasProd = [1, 2, 3, 4].map(n => somaMesa(grupo, n));
+                            const totalTurnoProd = mesasProd.reduce((a, b) => a + b, 0);
+                            
+                            grid.innerHTML = mesasProd.map((val, idx) => {
+                                const rate = totalTurnoProd > 0 ? (val / totalTurnoProd) : 0.25;
+                                const descarteMesaM3 = descarteTurnoM3 * rate;
+                                const descarteMesaChapas = Math.round(descarteTurnoChapas * rate);
+                                const percDescarte = calcularPercentualDescarte(val, descarteMesaM3);
+                                const descarteFormatado = `${fmt2d(descarteMesaM3)} m³ | ${fmtChapas(descarteMesaChapas)} chapas | ${fmtPerc(percDescarte)}%`;
+
+                                return `
+                                <div class="mesa-card">
+                                    <div class="card-topo-amarelo">MESA ${idx + 1}</div>
+                                    <div class="mesa-value valor-azul" style="margin-bottom: 0.25rem;">${fmt2d(val)} m³</div>
+                                    <div style="font-size: 0.8rem; color: var(--danger-color); font-weight: 600;">
+                                        Descarte: ${descarteFormatado}
+                                    </div>
+                                </div>`;
+                            }).join('') + `
+                                <div class="mesa-card total-turno">
+                                    <div class="mesa-header">Total do Turno</div>
+                                    <div class="mesa-value valor-azul" style="margin-bottom: 0.25rem;">${fmt2d(totalTurnoProd)} m³</div>
+                                    <div style="font-size: 0.8rem; color: var(--danger-color); font-weight: 600;">
+                                        Descarte: ${fmt2d(descarteTurnoM3)} m³ | ${fmtChapas(descarteTurnoChapas)} chapas | ${fmtPerc(calcularPercentualDescarte(totalTurnoProd, descarteTurnoM3))}%
+                                    </div>
+                                </div>`;
+                        };
+
+                        renderGridTurno('1T', '#grid1T', totDiaDescM3['1T'], totDiaDescChapas['1T']);
+                        renderGridTurno('2T', '#grid2T', totDiaDescM3['2T'], totDiaDescChapas['2T']);
+
+                        const grid3 = App.utils.$('#grid3ElevEsteira');
+                        if (grid3) {
+                             const dataForGrid3 = [
+                                ['3º TURNO', totDiaProd['3T'], totDiaDescM3['3T'], totDiaDescChapas['3T']],
+                                ['Mesa Elevada — 1º Turno', totDiaProdElevada['1T'], totDiaDescM3Elevada['1T'], totDiaDescChapasElevada['1T']],
+                                ['Mesa Elevada — 2º Turno', totDiaProdElevada['2T'], totDiaDescM3Elevada['2T'], totDiaDescChapasElevada['2T']],
+                                ['ESTEIRA', totDiaProd['ESTEIRA'], totDiaDescM3['ESTEIRA'], totDiaDescChapas['ESTEIRA']]
+                            ];
+                            
+                            grid3.innerHTML = dataForGrid3.map(([label, valProd, valDescM3, valDescChapas]) => {
+                                const percDescarte = calcularPercentualDescarte(valProd, valDescM3);
+                                const descarteFormatado = `${fmt2d(valDescM3)} m³ | ${fmtChapas(valDescChapas)} chapas | ${fmtPerc(percDescarte)}%`;
+                                return `
+                                <div class="mesa-card">
+                                    <div class="mesa-header">${label}</div>
+                                    <div class="mesa-value valor-azul" style="margin-bottom: 0.25rem;">${fmt2d(valProd)} m³</div>
+                                    <div style="font-size: 0.8rem; color: var(--danger-color); font-weight: 600;">
+                                        Descarte: ${descarteFormatado}
+                                    </div>
+                                </div>
+                            `}).join('');
+                        }
+
+                        this.updateTabelaSemanal(selDate, producao, produtoById, familiaById);
+                    },
+
+                    updateTabelaSemanal(selDate, producao, produtoById, familiaById) {
+                        const fmt = (n) => (Number(n) || 0).toFixed(3);
+                        
+                        const base = new Date(selDate + 'T00:00:00');
+                        const dow = base.getDay();
+                        const offsetSeg = (dow === 0 ? -6 : 1 - dow);
+                        const seg = new Date(base);
+                        seg.setDate(base.getDate() + offsetSeg);
+                        
+                        const diasSemana = Array.from({length: 5}, (_, i) => {
+                            const d = new Date(seg);
+                            d.setDate(seg.getDate() + i);
+                            return d.toISOString().split('T')[0];
+                        });
+
+                        const getFamiliaNome = (produtoID) => {
+                            const produto = produtoById[produtoID];
+                            if (!produto) return 'OUTROS';
+                            const familia = familiaById[produto.FamiliaID];
+                            return familia ? familia.FamiliaNome.trim().toUpperCase() : 'OUTROS';
+                        };
+
+                        const linhasSemana = diasSemana.map(data => {
+                            const regsDia = producao.filter(r => r.Data === data);
+                            const totaisDia = {
+                                'EXPORTACAO': 0, 'PLASTIFICADO': 0, 
+                                'RESINADO': 0, 'MOVELEIRO': 0
+                            };
+                            let totalDia = 0;
+                            for (const reg of regsDia) {
+                                const produto = produtoById[reg.ProdutoID];
+                                const volume = produto ? (produto.Cubagem_m3 * reg.Quantidade_Chapas) : 0;
+                                const famNome = getFamiliaNome(reg.ProdutoID).replace('ÇÃO', 'CAO');
+                                
+                                if (totaisDia[famNome] !== undefined) {
+                                    totaisDia[famNome] += volume;
+                                }
+                                totalDia += volume;
+                            }
+                            return { data, ...totaisDia, totalDia };
+                        });
+
+                        const tbody = App.utils.$('#tbodySemanal');
+                        if (tbody) {
+                            tbody.innerHTML = linhasSemana.map(linha => `
+                                <tr>
+                                    <td>${new Date(linha.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+                                    <td>${fmt(linha.EXPORTACAO)}</td>
+                                    <td>${fmt(linha.PLASTIFICADO)}</td>
+                                    <td>${fmt(linha.RESINADO)}</td>
+                                    <td>${fmt(linha.MOVELEIRO)}</td>
+                                    <td><strong>${fmt(linha.totalDia)}</strong></td>
+                                </tr>
+                            `).join('');
+                        }
+
+                        const totaisSemana = linhasSemana.reduce((acc, linha) => {
+                            acc.EXPORTACAO += linha.EXPORTACAO;
+                            acc.PLASTIFICADO += linha.PLASTIFICADO;
+                            acc.RESINADO += linha.RESINADO;
+                            acc.MOVELEIRO += linha.MOVELEIRO;
+                            acc.GERAL += linha.totalDia;
+                            return acc;
+                        }, {EXPORTACAO: 0, PLASTIFICADO: 0, RESINADO: 0, MOVELEIRO: 0, GERAL: 0});
+                        
+                        const diasComProducaoGeral = linhasSemana.filter(l => l.totalDia > 0).length;
+                        App.utils.setText('#mediaSemanalGeral', diasComProducaoGeral > 0 ? fmt(totaisSemana.GERAL / diasComProducaoGeral) : '—');
+
+                        const diasComProducaoExportacao = linhasSemana.filter(l => l.EXPORTACAO > 0).length;
+                        App.utils.setText('#mediaSemanalExportacao', diasComProducaoExportacao > 0 ? fmt(totaisSemana.EXPORTACAO / diasComProducaoExportacao) : '—');
+
+                        const diasComProducaoPlastificado = linhasSemana.filter(l => l.PLASTIFICADO > 0).length;
+                        App.utils.setText('#mediaSemanalPlastificado', diasComProducaoPlastificado > 0 ? fmt(totaisSemana.PLASTIFICADO / diasComProducaoPlastificado) : '—');
+
+                        const diasComProducaoResinado = linhasSemana.filter(l => l.RESINADO > 0).length;
+                        App.utils.setText('#mediaSemanalResinado', diasComProducaoResinado > 0 ? fmt(totaisSemana.RESINADO / diasComProducaoResinado) : '—');
+
+                        const diasComProducaoMoveleiro = linhasSemana.filter(l => l.MOVELEIRO > 0).length;
+                        App.utils.setText('#mediaSemanalMoveleiro', diasComProducaoMoveleiro > 0 ? fmt(totaisSemana.MOVELEIRO / diasComProducaoMoveleiro) : '—');
+
+                        App.utils.setText('#totalSemanalExportacao', fmt(totaisSemana.EXPORTACAO));
+                        App.utils.setText('#totalSemanalPlastificado', fmt(totaisSemana.PLASTIFICADO));
+                        App.utils.setText('#totalSemanalResinado', fmt(totaisSemana.RESINADO));
+                        App.utils.setText('#totalSemanalMoveleiro', fmt(totaisSemana.MOVELEIRO));
+                        App.utils.setText('#totalSemanalGeral', fmt(totaisSemana.GERAL));
+
+                        const anoMes = selDate.slice(0, 7);
+                        const regsMes = producao.filter(r => (r.Data || '').startsWith(anoMes));
+                        const totaisMensais = {EXPORTACAO: 0, PLASTIFICADO: 0, RESINADO: 0, MOVELEIRO: 0, GERAL: 0};
+
+                        for (const reg of regsMes) {
+                            const produto = produtoById[reg.ProdutoID];
+                            const volume = produto ? (produto.Cubagem_m3 * reg.Quantidade_Chapas) : 0;
+                            const famNome = getFamiliaNome(reg.ProdutoID).replace('ÇÃO', 'CAO');
+                            if (totaisMensais[famNome] !== undefined) {
+                                totaisMensais[famNome] += volume;
+                            }
+                            totaisMensais.GERAL += volume;
+                        }
+
+                        App.utils.setText('#totalMensalExportacao', fmt(totaisMensais.EXPORTACAO));
+                        App.utils.setText('#totalMensalPlastificado', fmt(totaisMensais.PLASTIFICADO));
+                        App.utils.setText('#totalMensalResinado', fmt(totaisMensais.RESINADO));
+                        App.utils.setText('#totalMensalMoveleiro', fmt(totaisMensais.MOVELEIRO));
+                        App.utils.setText('#totalMensalGeral', fmt(totaisMensais.GERAL));
+
+                        const calcPerc = (valor, total) => (total > 0 ? `${((valor / total) * 100).toFixed(1)}%`.replace('.', ',') : '0,0%');
+
+                        App.utils.setText('#percentMensalExportacao', calcPerc(totaisMensais.EXPORTACAO, totaisMensais.GERAL));
+                        App.utils.setText('#percentMensalPlastificado', calcPerc(totaisMensais.PLASTIFICADO, totaisMensais.GERAL));
+                        App.utils.setText('#percentMensalResinado', calcPerc(totaisMensais.RESINADO, totaisMensais.GERAL));
+                        App.utils.setText('#percentMensalMoveleiro', calcPerc(totaisMensais.MOVELEIRO, totaisMensais.GERAL));
+                    }
+                },
+
+                updateCharts(producaoParaGraficos) {
+                },
+
+                async conectarBanco() {
+                    const host = App.utils.getValue('#dbHost') || 'localhost';
+                    const port = App.utils.getValue('#dbPort') || '3001';
+                    App.state.API_BASE_URL = `http://${host}:${port}`;
+                    
+                    App.ui.updateConnectionStatus('connecting');
+                    
+                    try {
+                        const data = await App.utils.apiCall('/test-connection');
+                        App.ui.updateConnectionStatus('connected');
+                        App.ui.showNotification(`Conectado com sucesso: ${data.message || 'Conexão estabelecida'}`);
+                        await this.loadAllData();
+                    } catch (error) {
+                        App.ui.updateConnectionStatus('disconnected');
+                    }
+                },
+
+                initConsulta() {
+                    const tipoConsulta = App.utils.$('#tipoConsulta');
+                    if (tipoConsulta) {
+                        tipoConsulta.addEventListener('change', this.toggleFiltrosConsulta);
+                    }
+                    this.populateFiltrosConsulta();
+                },
+
+                toggleFiltrosConsulta() {
+                    const tipo = App.utils.getValue('#tipoConsulta');
+                    const filtrosProducao = App.utils.$('#filtrosProducao');
+                    const filtrosDescarte = App.utils.$('#filtrosDescarte');
+                    
+                    if (tipo === 'producao') {
+                        if (filtrosProducao) filtrosProducao.style.display = 'grid';
+                        if (filtrosDescarte) filtrosDescarte.style.display = 'none';
+                    } else {
+                        if (filtrosProducao) filtrosProducao.style.display = 'none';
+                        if (filtrosDescarte) filtrosDescarte.style.display = 'grid';
+                    }
+                },
+
+                populateFiltrosConsulta() {
+                    const { familias = [] } = App.state.cache;
+                    App.ui.populateSelect('filtroFamilia', familias, 'FamiliaID', 'FamiliaNome');
+                },
+
+                async aplicarFiltros() {
+                    const tipo = App.utils.getValue('#tipoConsulta');
+                    const dataInicio = App.utils.getValue('#filtroDataInicio');
+                    const dataFim = App.utils.getValue('#filtroDataFim');
+                    
+                    const turnosSelecionados = [...App.utils.$('#filtroTurno').options]
+                        .filter(option => option.selected)
+                        .map(option => option.value);
+                    
+                    let dados = [];
+                    
+                    if (tipo === 'producao') {
+                        dados = [...App.state.cache.producao];
+                        
+                        const produto = App.utils.getValue('#filtroProduto');
+                        const mesa = App.utils.getValue('#filtroMesa');
+                        const familia = App.utils.getValue('#filtroFamilia');
+                        
+                        if (produto) dados = dados.filter(d => d.ProdutoID === parseInt(produto));
+                        if (mesa) {
+                            dados = dados.filter(d => {
+                                const turnoObj = App.state.cache.turnos.find(t => t.TurnoID === d.TurnoID);
+                                return (turnoObj?.TurnoNome?.toUpperCase() || '').includes(mesa);
+                            });
+                        }
+                        if (familia) {
+                            dados = dados.filter(d => {
+                                const produto = App.state.cache.produtos.find(p => p.ProdutoID === d.ProdutoID);
+                                return produto && produto.FamiliaID === parseInt(familia);
+                            });
+                        }
+                    } else {
+                        dados = [...App.state.cache.descarte];
+                        
+                        const tipoDescarte = App.utils.getValue('#filtroTipoDescarte');
+                        if (tipoDescarte) dados = dados.filter(d => d.Tipo_Descarte === tipoDescarte);
+                    }
+                    
+                    if (dataInicio) dados = dados.filter(d => d.Data >= dataInicio);
+                    if (dataFim) dados = dados.filter(d => d.Data <= dataFim);
+                    
+                    if (turnosSelecionados.length > 0) {
+                        dados = dados.filter(d => {
+                            const turnoObj = App.state.cache.turnos.find(t => t.TurnoID === d.TurnoID);
+                            return turnoObj && turnosSelecionados.includes(turnoObj.TurnoNome);
+                        });
+                    }
+                    
+                    this.exibirResultadosConsulta(dados, tipo);
+                },
+
+                exibirResultadosConsulta(dados, tipo) {
+                    const container = App.utils.$('#resultadosConsulta');
+                    if (!container) return;
+                    
+                    if (dados.length === 0) {
+                        container.innerHTML = '<p style="text-align: center; color: #666;">Nenhum resultado encontrado.</p>';
+                        return;
+                    }
+                    
+                    const totalQuantidade = dados.reduce((total, r) => total + (r.Quantidade_Chapas || 0), 0);
+                    let totalVolume = 0;
+                    
+                    totalVolume = dados.reduce((total, r) => {
+                        const produto = App.state.cache.produtos.find(p => p.ProdutoID === r.ProdutoID);
+                        return total + ((produto?.Cubagem_m3 || 0) * (r.Quantidade_Chapas || 0));
+                    }, 0);
+                    
+                    let html = `
+                        <div class="alert alert-success">
+                            <strong>📊 Resultados:</strong> ${dados.length} registros encontrados.
+                        </div>
+                        <div class="table-container">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Data</th><th>Turno</th><th>Produto</th>
+                                        <th>Quantidade (Chapas)</th><th>Volume (m³)</th>
+                                        ${tipo === 'descarte' ? '<th>Tipo Descarte</th><th>Obs</th>' : ''}
+                                    </tr>
+                                </thead>
+                                <tbody>`;
+                    
+                    dados.forEach(registro => {
+                        const produto = App.state.cache.produtos.find(p => p.ProdutoID === registro.ProdutoID);
+                        const turno = App.state.cache.turnos.find(t => t.TurnoID === registro.TurnoID);
+                        const volume = (produto?.Cubagem_m3 || 0) * (registro.Quantidade_Chapas || 0);
+                        const dataFormatada = new Date(registro.Data + 'T00:00:00').toLocaleDateString('pt-BR');
+                        
+                        html += `
+                            <tr>
+                                <td>${dataFormatada}</td>
+                                <td><span style="background: var(--info-color); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem;">${turno?.TurnoNome || 'N/A'}</span></td>
+                                <td>${produto ? `${produto.Codigo} - ${produto.Descricao}` : 'N/A'}</td>
+                                <td>${(registro.Quantidade_Chapas || 0).toFixed(0)}</td>
+                                <td><strong>${volume.toFixed(6)}</strong></td>
+                                ${tipo === 'descarte' ? `<td><span style="background: var(--danger-color); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.875rem;">${registro.Tipo_Descarte || 'N/A'}</span></td><td>${registro.Obs || '-'}</td>` : ''}
+                            </tr>`;
+                    });
+
+                    html += `
+                                </tbody>
+                                <tfoot style="font-weight: bold; background-color: #f0f2f5; border-top: 2px solid var(--primary-color);">
+                                    <tr>
+                                        <td colspan="3">TOTAIS</td>
+                                        <td>${totalQuantidade.toFixed(0)}</td>
+                                        <td>${totalVolume.toFixed(6)}</td>
+                                        ${tipo === 'descarte' ? '<td colspan="2"></td>' : ''}
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div style="margin-top: 1rem;">
+                            <button class="btn btn-success" onclick="exportarResultadosConsulta('${tipo}')">📤 Exportar Resultados</button>
+                        </div>`;
+                    
+                    container.innerHTML = html;
+                },
+
+                limparFiltros() {
+                    const campos = ['filtroDataInicio', 'filtroDataFim', 'filtroProduto', 'filtroMesa', 'filtroFamilia', 'filtroTipoDescarte'];
+                    campos.forEach(id => {
+                        const el = App.utils.$(`#${id}`);
+                        if (el) el.value = '';
+                    });
+                    
+                    const filtroTurnoEl = App.utils.$('#filtroTurno');
+                    if (filtroTurnoEl) {
+                        [...filtroTurnoEl.options].forEach(option => option.selected = false);
+                    }
+
+                    App.utils.$('#tipoConsulta').value = 'producao';
+                    this.toggleFiltrosConsulta();
+                    App.utils.$('#resultadosConsulta').innerHTML = '<p style="text-align: center; color: #666;">Aplique os filtros para ver os resultados.</p>';
+                },
+
+                exportarResultadosConsulta(tipo) {
+                    App.ui.showNotification(`Exportação de resultados da consulta (${tipo}) em desenvolvimento`, 'info');
+                },
+
+                async salvarProduto() {
+                    const comprimento = parseFloat(App.utils.getValue('#modalComprimento')) || 0;
+                    const largura = parseFloat(App.utils.getValue('#modalLargura')) || 0;
+                    const bitola = parseFloat(App.utils.getValue('#modalBitola')) || 0;
+
+                    const payload = {
+                        Codigo: App.utils.getValue('#modalCodigo').trim(),
+                        Descricao: App.utils.getValue('#modalDescricao').trim(),
+                        FamiliaID: parseInt(App.utils.getValue('#modalFamiliaID')) || 1,
+                        Comprimento_m: comprimento, Largura_m: largura, Bitola_m: bitola,
+                        Cubagem_m3: comprimento * largura * bitola, Ativo: 'SIM'
+                    };
+
+                    const endpoint = App.state.editingProduct ? `/produtos/${App.state.editingProduct}` : '/produtos';
+                    const method = App.state.editingProduct ? 'PUT' : 'POST';
+
+                    const result = await App.utils.apiCall(endpoint, { method, body: JSON.stringify(payload) });
+
+                    App.ui.showNotification(result.message);
+                    App.ui.toggleModal('modalProduto', false);
+                    this.loadProdutos();
+                    App.state.editingProduct = null;
+                },
+
+                async salvarTurno() {
+                    const nomeTurno = App.utils.getValue('#modalNomeTurno').trim();
+                    if (!nomeTurno) return App.ui.showNotification("O nome do turno é obrigatório.", 'warning');
+                    
+                    App.ui.showNotification("Criação de turnos não implementada no servidor", 'warning');
+                    App.ui.toggleModal('modalTurno', false);
+                },
+
+                async registrarProducao() {
+                    const codigo = App.utils.getValue('#codigoInput') || App.utils.getValue('#produtoCodigo');
+                    const produto = App.state.cache.produtos.find(p => p.Codigo == codigo);
+                    
+                    if (!produto) return App.ui.showNotification('Produto não encontrado!', 'error');
+                    if (!produto.Cubagem_m3 || produto.Cubagem_m3 <= 0) {
+                        return App.ui.showNotification('Produto sem dimensões (comprimento/largura/bitola). Não é possível calcular m³.', 'error');
+                    }
+                    
+                    const setorGeral = App.state.cache.setores.find(s => s.SetorNome.toUpperCase() === 'PRODUÇÃO GERAL');
+
+                    const payload = {
+                        Data: App.utils.getValue('#dataProducao'),
+                        TurnoID: parseInt(App.utils.getValue('#turnoDetalhado'), 10),
+                        SetorID: setorGeral ? setorGeral.SetorID : 1,
+                        ProdutoID: produto.ProdutoID,
+                        Quantidade_Chapas: parseInt(App.utils.getValue('#quantidade'), 10)
+                    };
+                    
+                    if (!payload.ProdutoID || !payload.Quantidade_Chapas || !payload.TurnoID || !payload.Data || payload.Quantidade_Chapas <= 0) {
+                       return App.ui.showNotification('Por favor, preencha todos os campos obrigatórios corretamente.', 'error');
+                    }
+
+                    const novoLancamento = await App.utils.apiCall('/producao', { method: 'POST', body: JSON.stringify(payload) });
+
+                    if (novoLancamento && novoLancamento.ProducaoID) {
+                        App.state.cache.producao.push(novoLancamento);
+                        App.ui.showNotification("Lançamento registrado com sucesso!");
+                    } else {
+                        App.ui.showNotification(novoLancamento.message || "Lançamento registrado, atualizando lista...");
+                        await this.loadProducao();
+                    }
+                    
+                    this.resetFormProducaoParcial(); 
+                    this.renderProducaoDoDia(); 
+                    this.loadDashboard();
+                },
+
+                resetFormProducaoParcial() {
+                    App.utils.$('#codigoInput').value = '';
+                    App.utils.$('#quantidade').value = '';
+                    App.utils.$('#produtoCodigo').value = '';
+                    App.utils.$('#descricaoProdutoPreview').textContent = '';
+                    App.utils.$('#codigoInput').focus();
+                },
+                
+                descarte: {
+                    state: {
+                        selectedProdutoId: null,
+                        editingRowId: null,
+                        originalRowHTML: null,
+                    },
+
+                    init() {
+                        App.utils.$('#dataDescarte').value = App.utils.getYesterdayDateString();
+                        App.utils.$('#dataTabelaDescartes').value = App.state.dataTabelaDescartes;
+                        this.loadDescartesDoDia();
+                    },
+
+                    setDataTabela() {
+                        const novaData = App.utils.getValue('#dataTabelaDescartes');
+                        App.state.dataTabelaDescartes = novaData;
+                        localStorage.setItem('descarte.dataTabela', novaData);
+                        this.loadDescartesDoDia();
+                    },
+
+                    async loadDescartesDoDia() {
+                        try {
+                            const data = App.state.dataTabelaDescartes;
+                            const descartes = await App.utils.apiCall(`/descarte?data=${data}`);
+                            App.state.cache.descartesDoDia = descartes || [];
+                            App.state.descarteCurrentPage = 1;
+                            this.renderDescartesDoDia();
+                        } catch (error) {
+                            console.error("Erro ao carregar descartes do dia:", error);
+                            App.state.cache.descartesDoDia = [];
+                            this.renderDescartesDoDia();
+                        }
+                    },
+                    
+                    renderDescartesDoDia() {
+                        const tbody = App.utils.$('#descartesDiaTbody');
+                        const paginationContainer = App.utils.$('#paginationDescartes');
+                        if (!tbody || !paginationContainer) return;
+
+                        const data = App.state.cache.descartesDoDia;
+                        const page = App.state.descarteCurrentPage;
+                        const rowsPerPage = App.state.descarteRowsPerPage;
+
+                        if (!data || data.length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Nenhum descarte para esta data.</td></tr>`;
+                            paginationContainer.innerHTML = '';
+                            return;
+                        }
+
+                        const startIndex = (page - 1) * rowsPerPage;
+                        const endIndex = startIndex + rowsPerPage;
+                        const paginatedData = data.slice(startIndex, endIndex);
+
+                        tbody.innerHTML = paginatedData.map(d => this.renderRow(d)).join('');
+                        this.renderPagination(data.length);
+                    },
+
+                    renderRow(d, isEditing = false) {
+                        const produto = App.state.cache.produtos.find(p => p.ProdutoID === d.ProdutoID);
+                        const turno = App.state.cache.turnos.find(t => t.TurnoID === d.TurnoID);
+
+                        if (isEditing) {
+                             return `
+                                <tr id="descarte-row-${d.DescarteID}" class="is-editing" data-descarte-id="${d.DescarteID}">
+                                    <td>${d.DescarteID}</td>
+                                    <td>${produto?.Codigo || 'N/A'}</td>
+                                    <td>${produto?.Descricao || 'N/A'}</td>
+                                    <td><input type="text" class="form-group" value="${d.Tipo_Descarte}" data-field="Tipo_Descarte" list="tiposDescarteDataList"></td>
+                                    <td><input type="number" class="form-group" value="${d.Quantidade_Chapas}" data-field="Quantidade_Chapas" min="1"></td>
+                                    <td>
+                                        <select class="form-group" data-field="TurnoID">
+                                            ${App.state.cache.turnos.map(t => `<option value="${t.TurnoID}" ${t.TurnoID == d.TurnoID ? 'selected' : ''}>${t.TurnoNome}</option>`).join('')}
+                                        </select>
+                                    </td>
+                                    <td><input type="text" class="form-group" value="${d.Obs || ''}" data-field="Obs"></td>
+                                    <td>
+                                        <button class="btn btn-sm btn-success" data-action="save" aria-label="Salvar alteração">Salvar</button>
+                                        <button class="btn btn-sm btn-secondary" data-action="cancel" aria-label="Cancelar alteração">Cancelar</button>
+                                    </td>
+                                </tr>`;
+                        }
+                        
+                        return `
+                            <tr id="descarte-row-${d.DescarteID}" data-descarte-id="${d.DescarteID}">
+                                <td>${d.DescarteID}</td>
+                                <td>${produto?.Codigo || 'N/A'}</td>
+                                <td>${produto?.Descricao || 'N/A'}</td>
+                                <td>${d.Tipo_Descarte}</td>
+                                <td>${d.Quantidade_Chapas}</td>
+                                <td>${turno?.TurnoNome || 'N/A'}</td>
+                                <td>${d.Obs || ''}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning" data-action="edit" aria-label="Editar linha ${d.DescarteID}">Editar</button>
+                                    <button class="btn btn-sm btn-danger" data-action="delete" aria-label="Excluir linha ${d.DescarteID}">Excluir</button>
+                                </td>
+                            </tr>`;
+                    },
+
+                    renderPagination(totalRows) {
+                         const paginationContainer = App.utils.$('#paginationDescartes');
+                         paginationContainer.innerHTML = '';
+                         const pageCount = Math.ceil(totalRows / App.state.descarteRowsPerPage);
+                         if (pageCount <= 1) return;
+
+                         for (let i = 1; i <= pageCount; i++) {
+                            const btn = document.createElement('button');
+                            btn.className = `btn btn-sm ${i === App.state.descarteCurrentPage ? 'btn-primary' : 'btn-secondary'}`;
+                            btn.textContent = i;
+                            btn.onclick = () => {
+                                App.state.descarteCurrentPage = i;
+                                this.renderDescartesDoDia();
+                            };
+                            paginationContainer.appendChild(btn);
+                         }
+                    },
+                    
+                    async registrar() {
+                        const produtoId = this.state.selectedProdutoId;
+                        if (!produtoId) {
+                            return App.ui.showNotification("Selecione um produto válido.", "warning");
+                        }
+                        const payload = {
+                             Data: App.utils.getValue('#dataDescarte'),
+                             TurnoID: parseInt(App.utils.getValue('#turnoDescarte'), 10),
+                             SetorID: 1,
+                             ProdutoID: produtoId,
+                             Tipo_Descarte: App.utils.getValue('#tipoDescarte').trim(),
+                             Quantidade_Chapas: parseInt(App.utils.getValue('#quantidadeDescarte'), 10),
+                             Obs: App.utils.getValue('#descarteObs').trim()
+                        };
+                        
+                        if (!payload.ProdutoID || !payload.TurnoID || !payload.Data || !payload.Tipo_Descarte || !(payload.Quantidade_Chapas > 0)) {
+                           return App.ui.showNotification('Por favor, preencha todos os campos obrigatórios corretamente.', 'error');
+                        }
+                        
+                        try {
+                            const result = await App.utils.apiCall('/descarte', { method: 'POST', body: JSON.stringify(payload) });
+                            App.ui.showNotification('Descarte registrado com sucesso!', 'success');
+                            this.resetForm();
+                            
+                            await App.logic.loadDescarte();
+
+                            if (payload.Data === App.state.dataTabelaDescartes) {
+                                await this.loadDescartesDoDia();
+                            }
+                        } catch (e) {
+                             console.error("Erro ao registrar descarte:", e);
+                        }
+                    },
+                    
+                    resetForm() {
+                        App.utils.$('#codigoDescarteInput').value = '';
+                        App.utils.$('#quantidadeDescarte').value = '';
+                        App.utils.$('#tipoDescarte').value = '';
+                        App.utils.$('#descarteObs').value = '';
+                        App.utils.$('#produtoSelecionadoDescarte').textContent = 'Nenhum produto selecionado.';
+                        this.state.selectedProdutoId = null;
+                        App.utils.$('#codigoDescarteInput').focus();
+                    },
+
+                    handleCodigoChange(e) {
+                        const input = e.target.value.trim();
+                        const display = App.utils.$('#produtoSelecionadoDescarte');
+                        const produto = App.state.cache.produtos.find(p => p.Codigo === input || p.Descricao === input);
+
+                        if(produto) {
+                            this.state.selectedProdutoId = produto.ProdutoID;
+                            const dimensoes = produto.Comprimento_m ? `(${produto.Comprimento_m}x${produto.Largura_m}x${produto.Bitola_m})` : '';
+                            const cubagem = produto.Cubagem_m3 ? `${produto.Cubagem_m3.toFixed(6)} m³/chapa` : '';
+                            display.innerHTML = `<strong>${produto.Codigo}</strong> - ${produto.Descricao} <br> <small>${dimensoes} ${cubagem}</small>`;
+                            display.style.color = 'var(--secondary-color)';
+                        } else {
+                            this.state.selectedProdutoId = null;
+                            display.textContent = input ? 'Código não encontrado.' : 'Nenhum produto selecionado.';
+                            display.style.color = input ? 'var(--danger-color)' : 'var(--dark-color)';
+                        }
+                    },
+
+                    handleRowDblClick(e) {
+                        const row = e.target.closest('tr');
+                        if (row && row.dataset.descarteId && !row.classList.contains('is-editing')) {
+                            this.startEditing(row.dataset.descarteId);
+                        }
+                    },
+
+                    handleTableClick(e) {
+                        const action = e.target.dataset.action;
+                        if (!action) return;
+
+                        const row = e.target.closest('tr');
+                        const id = row.dataset.descarteId;
+
+                        if (action === 'edit') this.startEditing(id);
+                        if (action === 'delete') this.deleteDescarte(id);
+                        if (action === 'save') this.saveEditing(id);
+                        if (action === 'cancel') this.cancelEditing(id);
+                    },
+
+                    handleTableKeyDown(e) {
+                         const row = e.target.closest('tr.is-editing');
+                         if (!row) return;
+                         const id = row.dataset.descarteId;
+
+                         if (e.key === 'Enter') {
+                             e.preventDefault();
+                             this.saveEditing(id);
+                         }
+                         if (e.key === 'Escape') {
+                             e.preventDefault();
+                             this.cancelEditing(id);
+                         }
+                    },
+
+                    startEditing(id) {
+                         if(this.state.editingRowId) {
+                             this.cancelEditing(this.state.editingRowId);
+                         }
+
+                         const rowData = App.state.cache.descartesDoDia.find(d => d.DescarteID == id);
+                         const rowElement = App.utils.$(`#descarte-row-${id}`);
+                         if (rowData && rowElement) {
+                             this.state.editingRowId = id;
+                             this.state.originalRowHTML = rowElement.innerHTML;
+                             const editHTML = this.renderRow(rowData, true);
+                             rowElement.innerHTML = editHTML.substring(editHTML.indexOf('>') + 1, editHTML.lastIndexOf('<')).trim();
+                             rowElement.classList.add('is-editing');
+                             rowElement.querySelector('input, select')?.focus();
+                         }
+                    },
+                    
+                    cancelEditing(id) {
+                         const rowElement = App.utils.$(`#descarte-row-${id}`);
+                         if (rowElement && this.state.originalRowHTML) {
+                            rowElement.innerHTML = this.state.originalRowHTML;
+                            rowElement.classList.remove('is-editing');
+                         }
+                         this.state.editingRowId = null;
+                         this.state.originalRowHTML = null;
+                    },
+
+                    async saveEditing(id) {
+                        const row = App.utils.$(`#descarte-row-${id}`);
+                        if (!row) return;
+
+                        const payload = {
+                             Tipo_Descarte: row.querySelector('[data-field="Tipo_Descarte"]').value,
+                             Quantidade_Chapas: parseInt(row.querySelector('[data-field="Quantidade_Chapas"]').value, 10),
+                             TurnoID: parseInt(row.querySelector('[data-field="TurnoID"]').value, 10),
+                             Obs: row.querySelector('[data-field="Obs"]').value,
+                        };
+
+                        if (!payload.Tipo_Descarte || !(payload.Quantidade_Chapas > 0) || !payload.TurnoID) {
+                            return App.ui.showNotification("Campos inválidos na linha.", 'error');
+                        }
+                        
+                        try {
+                            await App.utils.apiCall(`/descarte/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+                            App.ui.showNotification('Descarte atualizado com sucesso!');
+                            await this.loadDescartesDoDia(); 
+                        } catch (e) {
+                            this.cancelEditing(id); 
+                        } finally {
+                            this.state.editingRowId = null;
+                            this.state.originalRowHTML = null;
+                        }
+                    },
+                    
+                    deleteDescarte(id) {
+                        const confirmModal = App.utils.$('#confirmModal');
+                        const confirmOk = App.utils.$('#confirmOk');
+                        if (!confirmModal || !confirmOk) return;
+
+                        App.utils.setText('#confirmModalTitle', 'Confirmar Exclusão de Descarte');
+                        App.utils.setText('#confirmModalText', `Tem certeza que deseja excluir o descarte #${id}?`);
+                        
+                        confirmOk.onclick = async () => {
+                            try {
+                                await App.utils.apiCall(`/descarte/${id}`, { method: 'DELETE' });
+                                App.ui.showNotification(`Descarte #${id} excluído com sucesso.`);
+                                await this.loadDescartesDoDia();
+                            } catch (e) {
+                                console.error(`Falha ao excluir descarte ${id}`, e);
+                            } finally {
+                                App.ui.toggleModal('confirmModal', false);
+                            }
+                        };
+                        
+                        App.ui.toggleModal('confirmModal', true);
+                    },
+                },
+            },
+
+            // Inicialização
+            init() {
+                console.log('Sistema COMPENSADOS NM iniciando...');
+                
+                const today = this.utils.getTodayDateString();
+                const savedProdDate = localStorage.getItem('producao.dataReferencia');
+                App.state.dataReferencia = savedProdDate || today;
+                
+                const savedEsqDate = localStorage.getItem('esq.dataRef');
+                App.state.dataRefEsq = savedEsqDate || today;
+
+                const savedDescDate = localStorage.getItem('descarte.dataTabela');
+                App.state.dataTabelaDescartes = savedDescDate || today;
+                
+                App.state.esqGerencial.currentDate = new Date(today + 'T12:00:00');
+
+                App.utils.$('#dataReferencia').value = App.state.dataReferencia;
+                App.utils.$('#dataRefEsq').value = App.state.dataRefEsq;
+                App.utils.$('#filtroDataGerencial').value = today;
+                App.utils.$('#esqGerencialDataRef').value = today;
+                App.utils.$('#dataTabelaDescartes').value = App.state.dataTabelaDescartes;
+                App.utils.$('#dataDescarte').value = this.utils.getYesterdayDateString();
+
+                this.ui.updateConnectionStatus('disconnected');
+                this.setupEventListeners();
+                setTimeout(() => this.logic.conectarBanco(), 1000);
+                console.log('Sistema inicializado com sucesso!');
+            },
+
+            setupEventListeners() {
+                App.utils.$('#btnConectar').addEventListener('click', () => App.logic.conectarBanco());
+
+                // Lógica do menu lateral e responsividade
+                const mobileMenuToggle = App.utils.$('#mobileMenuToggle');
+                const sidebar = App.utils.$('#sidebar');
+                const overlay = App.utils.$('#sidebarOverlay');
+
+                if (mobileMenuToggle && sidebar && overlay) {
+                    mobileMenuToggle.addEventListener('click', () => {
+                        sidebar.classList.toggle('is-open');
+                        overlay.classList.toggle('is-open');
+                    });
+
+                    overlay.addEventListener('click', () => {
+                        sidebar.classList.remove('is-open');
+                        overlay.classList.remove('is-open');
+                    });
+                }
+                
+                // Listener de clique para as abas (agora no menu lateral)
+                App.utils.$('#navTabs').addEventListener('click', (e) => {
+                    const button = e.target.closest('.nav-tab');
+                    if (button) {
+                        this.switchTab(button.dataset.tab);
+                        // Fecha o menu em TODAS as telas após a seleção (condição de largura removida)
+                        sidebar.classList.remove('is-open');
+                        overlay.classList.remove('is-open');
+                    }
+                });
+
+                document.addEventListener("keydown", (e) => {
+                    if (e.ctrlKey && e.key === 'Enter') {
+                        e.preventDefault();
+                        const activeTab = document.querySelector('.tab-content.active').id;
+                        if (activeTab === 'producao') App.logic.registrarProducao();
+                        if (activeTab === 'esquadrejadeira') App.logic.registrarProducaoEsq();
+                        if (activeTab === 'descarte') App.logic.descarte.registrar();
+                    }
+
+                    if (e.ctrlKey) {
+                        const key = e.key.toLowerCase();
+                        const tabMap = { 
+                            "1": "dashboard", "2": "gerencial", "3": "importar", "4": "produtos", 
+                            "5": "turnos", "6": "producao", "7": "descarte", "8": "consulta", "9": "relatorios",
+                            "e": "esquadrejadeira", "g": "gerencial-acabamento"
+                        };
+                        if (tabMap[key]) {
+                            e.preventDefault();
+                            document.querySelector(`.nav-tab[data-tab="${tabMap[key]}"]`)?.click();
+                        }
+                    }
+                });
+                
+                App.utils.$('#dataReferencia').addEventListener('change', () => App.logic.setDataReferencia());
+                App.utils.$('#codigoInput').addEventListener('keydown', this.handleProducaoFormKeyDown);
+                App.utils.$('#quantidade').addEventListener('keydown', this.handleProducaoFormKeyDown);
+                App.utils.$('#turnoDetalhado').addEventListener('keydown', this.handleProducaoFormKeyDown);
+                
+                App.utils.$('#dataRefEsq').addEventListener('change', () => App.logic.setDataRefEsq());
+                App.utils.$('#btnRegistrarEsq').addEventListener('click', () => App.logic.registrarProducaoEsq());
+                App.utils.$('#codigoEsqInput').addEventListener('input', App.utils.debounce((e) => App.buscarProdutoPorCodigo(e.target.value, '#descricaoProdutoEsqPreview'), 300));
+                App.utils.$('#codigoEsqInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); App.utils.$('#quantidadeEsq').focus(); } });
+                App.utils.$('#quantidadeEsq').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); App.utils.$('#turnoEsq').focus(); } });
+                 App.utils.$('#turnoEsq').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); App.logic.registrarProducaoEsq(); } });
+
+                App.utils.$('#buscarProduto')?.addEventListener('input', (e) => this.filterTable('produtosTbody', e.target.value));
+                App.utils.$('#produtos thead')?.addEventListener('click', (e) => {
+                    const th = e.target.closest('th');
+                    if (th && th.dataset.sort) {
+                        const key = th.dataset.sort;
+                        const currentDirection = App.state.sortConfig.key === key ? App.state.sortConfig.direction : 'descending';
+                        App.state.sortConfig = { key: key, direction: currentDirection === 'ascending' ? 'descending' : 'ascending' };
+                        App.logic.renderProdutos();
+                    }
+                });
+                
+                App.utils.$('#filtroDataGerencial')?.addEventListener('change', () => App.logic.sync.updateGerencial());
+                
+                App.utils.$('#dataTabelaDescartes').addEventListener('change', () => App.logic.descarte.setDataTabela());
+                App.utils.$('#codigoDescarteInput').addEventListener('input', App.utils.debounce(App.logic.descarte.handleCodigoChange.bind(App.logic.descarte), 300));
+                App.utils.$('#descartesDiaTbody').addEventListener('dblclick', App.logic.descarte.handleRowDblClick.bind(App.logic.descarte));
+                App.utils.$('#descartesDiaTbody').addEventListener('click', App.logic.descarte.handleTableClick.bind(App.logic.descarte));
+                App.utils.$('#descartesDiaTbody').addEventListener('keydown', App.logic.descarte.handleTableKeyDown.bind(App.logic.descarte));
+
+                App.logic.initConsulta();
+
+                // Listeners para o Gerencial Acabamento
+                App.logic.esqGerencial.initEventListeners();
+            },
+
+            handleProducaoFormKeyDown(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const targetId = e.target.id;
+                    if (targetId === 'codigoInput') {
+                        App.buscarProdutoPorCodigo(e.target.value, '#descricaoProdutoPreview');
+                        App.utils.$('#quantidade').focus();
+                    } else if (targetId === 'quantidade') {
+                        App.utils.$('#turnoDetalhado').focus();
+                    } else if (targetId === 'turnoDetalhado') {
+                        App.utils.$('#btnRegistrarProducao').focus();
+                    }
+                }
+            },
+
+            switchTab(tabId) {
+                if (tabId === 'produtos') {
+                    try {
+                        const url = new URL(window.location.href);
+                        url.hash = 'produtos';
+                        const newWindow = window.open(url.toString(), '_blank');
+                        if (newWindow) newWindow.opener = null;
+                        else App.ui.showNotification('Abertura de nova guia bloqueada.', 'warning');
+                    } catch (err) { console.error('Falha ao abrir aba de produtos:', err); }
+                    return;
+                }
+
+                document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                
+                const activeTabButton = document.querySelector(`.nav-tab[data-tab="${tabId}"]`);
+                if (activeTabButton) activeTabButton.classList.add('active');
+
+                const activeTabContent = App.utils.$(`#${tabId}`);
+                if (activeTabContent) activeTabContent.classList.add('active');
+
+                if (App.state.isConnected) {
+                    if (tabId === 'gerencial') this.logic.sync.updateGerencial();
+                    if (tabId === 'gerencial-acabamento') this.logic.esqGerencial.init();
+                    if (tabId === 'consulta') this.logic.loadConsultaData();
+                    if (tabId === 'producao') this.logic.initProducaoTab();
+                    if (tabId === 'esquadrejadeira') this.logic.initEsquadrejadeiraTab();
+                    if (tabId === 'descarte') this.logic.descarte.init();
+                }
+            },
+
+            buscarProdutoPorCodigo(codigo, previewSelector) {
+                const produto = App.state.cache.produtos.find(p => p.Codigo === codigo.trim());
+                const previewEl = App.utils.$(previewSelector);
+                
+                if (produto && previewEl) {
+                    previewEl.textContent = `${produto.Descricao}`;
+                    previewEl.style.color = '#1e40af';
+                } else if (previewEl) {
+                    previewEl.textContent = 'Produto não encontrado.';
+                    previewEl.style.color = '#dc2626';
+                }
+            },
+
+            filterTable(tbodyId, term) {
+                const filter = term.toUpperCase();
+                const tbody = App.utils.$(`#${tbodyId}`);
+                if (!tbody) return;
+                
+                const rows = tbody.getElementsByTagName("tr");
+                for (let row of rows) {
+                    let found = false;
+                    for (let cell of row.getElementsByTagName("td")) {
+                        if (cell && cell.textContent.toUpperCase().indexOf(filter) > -1) {
+                            found = true;
+                            break;
+                        }
+                    }
+                    row.style.display = found ? "" : "none";
+                }
+            }
+        };
+        
+        App.logic.esqGerencial = {
+            init() {
+                if (!App.state.isConnected) {
+                    App.ui.showNotification('Conecte-se ao servidor para ver os dados.', 'warning');
+                    return;
+                }
+                const today = App.utils.getTodayDateString();
+                App.state.esqGerencial.currentDate = new Date(today + 'T12:00:00');
+                App.utils.$('#esqGerencialDataRef').value = today;
+                
+                const findTurno = (namePart, sectorPart = 'ESQUADREJADEIRA') => {
+                    const turnos = App.state.cache.turnos;
+                    const nameUpper = namePart.toUpperCase();
+                    const sectorUpper = sectorPart.toUpperCase();
+                    let turno = turnos.find(t => {
+                        const turnoNomeUpper = t.TurnoNome.toUpperCase();
+                        return turnoNomeUpper.includes(sectorUpper) && turnoNomeUpper.includes(nameUpper);
+                    });
+                    if (!turno) {
+                        console.warn(`Turno específico "${sectorPart} ${namePart}" não encontrado. Usando fallback genérico.`);
+                        turno = turnos.find(t => t.TurnoNome.toUpperCase().includes(nameUpper));
+                    }
+                    return turno;
+                };
+
+                const turno1 = findTurno('1º');
+                const turno2 = findTurno('2º');
+
+                App.state.esqGerencial.turno1Id = turno1 ? turno1.TurnoID : null;
+                App.state.esqGerencial.turno2Id = turno2 ? turno2.TurnoID : null;
+                
+                this.loadDataForWeek();
+            },
+
+            initEventListeners() {
+                App.utils.$('#esqGerencialDataRef').addEventListener('change', (e) => {
+                    App.state.esqGerencial.currentDate = new Date(e.target.value + 'T12:00:00');
+                    this.loadDataForWeek();
+                });
+                App.utils.$('#btnSemanaAnterior').addEventListener('click', () => this.changeWeek(-7));
+                App.utils.$('#btnSemanaSeguinte').addEventListener('click', () => this.changeWeek(7));
+                App.utils.$('#esqGerencialTbody').addEventListener('click', (e) => {
+                    const row = e.target.closest('tr');
+                    if (row && row.dataset.date) {
+                        this.updatePercentualDia(row.dataset.date);
+                    }
+                });
+            },
+
+            changeWeek(offset) {
+                App.state.esqGerencial.currentDate.setDate(App.state.esqGerencial.currentDate.getDate() + offset);
+                App.utils.$('#esqGerencialDataRef').value = App.state.esqGerencial.currentDate.toISOString().split('T')[0];
+                this.loadDataForWeek();
+            },
+
+            getWeekRange(date) {
+                const d = new Date(date);
+                const day = d.getDay();
+                const diff = d.getDate() - day + (day === 0 ? -6 : 1); 
+                const startOfWeek = new Date(d.setDate(diff));
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 4); 
+                return { startOfWeek, endOfWeek };
+            },
+
+            loadDataForWeek() {
+                const { startOfWeek, endOfWeek } = this.getWeekRange(App.state.esqGerencial.currentDate);
+                const startStr = startOfWeek.toISOString().split('T')[0];
+                const endStr = endOfWeek.toISOString().split('T')[0];
+                
+                App.utils.setText('#esqGerencialTituloSemana', 
+                    `Semana de ${startOfWeek.toLocaleDateString('pt-BR')} a ${endOfWeek.toLocaleDateString('pt-BR')}`
+                );
+
+                const esqProducao = App.state.cache.producao.filter(p => p.SetorID === App.state.setorEsquadrejadeiraId);
+                const weekProducao = esqProducao.filter(p => p.Data >= startStr && p.Data <= endStr);
+                
+                this.renderTable(startOfWeek, weekProducao);
+                this.calculateAndRenderFooter(startOfWeek, endOfWeek, esqProducao);
+                
+                const refDateStr = App.state.esqGerencial.currentDate.toISOString().split('T')[0];
+                const dayToSelect = (refDateStr >= startStr && refDateStr <= endStr) ? refDateStr : startStr;
+                this.updatePercentualDia(dayToSelect);
+            },
+            
+            renderTable(startOfWeek, weekProducao) {
+                const tbody = App.utils.$('#esqGerencialTbody');
+                tbody.innerHTML = '';
+                const weekDays = ['Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira']; 
+
+                for (let i = 0; i < 5; i++) { 
+                    const currentDate = new Date(startOfWeek);
+                    currentDate.setDate(startOfWeek.getDate() + i);
+                    const dateStr = currentDate.toISOString().split('T')[0];
+                    const dayName = weekDays[i];
+                    
+                    const producaoDia = weekProducao.filter(p => p.Data === dateStr);
+                    const totals = { t1Chapas: 0, t1M3: 0, t2Chapas: 0, t2M3: 0 };
+
+                    producaoDia.forEach(p => {
+                        const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                        if (!produto) return;
+                        const m3 = (p.Quantidade_Chapas || 0) * (produto.Cubagem_m3 || 0);
+                        if (p.TurnoID === App.state.esqGerencial.turno1Id) {
+                            totals.t1Chapas += p.Quantidade_Chapas;
+                            totals.t1M3 += m3;
+                        } else if (p.TurnoID === App.state.esqGerencial.turno2Id) {
+                            totals.t2Chapas += p.Quantidade_Chapas;
+                            totals.t2M3 += m3;
+                        }
+                    });
+
+                    const totalChapasDia = totals.t1Chapas + totals.t2Chapas;
+                    const totalM3Dia = totals.t1M3 + totals.t2M3;
+
+                    const row = document.createElement('tr');
+                    row.dataset.date = dateStr;
+                    row.innerHTML = `
+                        <td>${dayName} (${currentDate.toLocaleDateString('pt-BR')})</td>
+                        <td>${totals.t1Chapas} | ${totals.t1M3.toFixed(3)}</td>
+                        <td>${totals.t2Chapas} | ${totals.t2M3.toFixed(3)}</td>
+                        <td><strong>${totalChapasDia} | ${totalM3Dia.toFixed(3)}</strong></td>
+                    `;
+                    tbody.appendChild(row);
+                }
+            },
+            
+            calculateAndRenderFooter(startOfWeek, endOfWeek, esqProducao) {
+                const startStr = startOfWeek.toISOString().split('T')[0];
+                const endStr = endOfWeek.toISOString().split('T')[0];
+                
+                const weekProducao = esqProducao.filter(p => p.Data >= startStr && p.Data <= endStr);
+                
+                const totals = { t1Chapas: 0, t1M3: 0, t2Chapas: 0, t2M3: 0, totalChapas: 0, totalM3: 0 };
+                const diasComProducao = new Set(weekProducao.map(p => p.Data)).size;
+                
+                weekProducao.forEach(p => {
+                    const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                    if (!produto) return;
+                    const m3 = (p.Quantidade_Chapas || 0) * (produto.Cubagem_m3 || 0);
+                    totals.totalChapas += p.Quantidade_Chapas;
+                    totals.totalM3 += m3;
+                    if (p.TurnoID === App.state.esqGerencial.turno1Id) { totals.t1Chapas += p.Quantidade_Chapas; totals.t1M3 += m3; } 
+                    else if (p.TurnoID === App.state.esqGerencial.turno2Id) { totals.t2Chapas += p.Quantidade_Chapas; totals.t2M3 += m3; }
+                });
+
+                const divisor = diasComProducao > 0 ? diasComProducao : 1;
+                App.utils.setText('#esqGerencialMedia1T', `${Math.round(totals.t1Chapas / divisor)} | ${(totals.t1M3 / divisor).toFixed(3)}`);
+                App.utils.setText('#esqGerencialMedia2T', `${Math.round(totals.t2Chapas / divisor)} | ${(totals.t2M3 / divisor).toFixed(3)}`);
+                App.utils.setText('#esqGerencialMediaTotal', `${Math.round(totals.totalChapas / divisor)} | ${(totals.totalM3 / divisor).toFixed(3)}`);
+                
+                App.utils.setText('#esqGerencialAcumulado1T', `${totals.t1Chapas} | ${totals.t1M3.toFixed(3)}`);
+                App.utils.setText('#esqGerencialAcumulado2T', `${totals.t2Chapas} | ${totals.t2M3.toFixed(3)}`);
+                App.utils.setText('#esqGerencialAcumuladoTotal', `${totals.totalChapas} | ${totals.totalM3.toFixed(3)}`);
+
+                const monthStart = new Date(endOfWeek.getFullYear(), endOfWeek.getMonth(), 1).toISOString().split('T')[0];
+                const mtdProducao = esqProducao.filter(p => p.Data >= monthStart && p.Data <= endStr);
+                const mtdTotals = { t1Chapas: 0, t1M3: 0, t2Chapas: 0, t2M3: 0, totalChapas: 0, totalM3: 0 };
+                mtdProducao.forEach(p => {
+                    const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                    if (!produto) return;
+                    const m3 = (p.Quantidade_Chapas || 0) * (produto.Cubagem_m3 || 0);
+                    mtdTotals.totalChapas += p.Quantidade_Chapas;
+                    mtdTotals.totalM3 += m3;
+                    if (p.TurnoID === App.state.esqGerencial.turno1Id) { mtdTotals.t1Chapas += p.Quantidade_Chapas; mtdTotals.t1M3 += m3; } 
+                    else if (p.TurnoID === App.state.esqGerencial.turno2Id) { mtdTotals.t2Chapas += p.Quantidade_Chapas; mtdTotals.t2M3 += m3; }
+                });
+
+                App.utils.setText('#esqGerencialMtd1T', `${mtdTotals.t1Chapas} | ${mtdTotals.t1M3.toFixed(3)}`);
+                App.utils.setText('#esqGerencialMtd2T', `${mtdTotals.t2Chapas} | ${mtdTotals.t2M3.toFixed(3)}`);
+                App.utils.setText('#esqGerencialMtdTotal', `${mtdTotals.totalChapas} | ${mtdTotals.totalM3.toFixed(3)}`);
+                
+                this.updatePercentualMes(mtdProducao, mtdTotals.totalM3);
+            },
+
+            updatePercentualDia(dateStr) {
+                document.querySelectorAll('#esqGerencialTbody tr').forEach(r => r.classList.remove('selected-day'));
+                const row = App.utils.$(`#esqGerencialTbody tr[data-date="${dateStr}"]`);
+                if (row) row.classList.add('selected-day');
+
+                const dateFmt = new Date(dateStr + 'T12:00:00').toLocaleDateString('pt-BR');
+                App.utils.setText('#percDiaTitulo', `% do Dia (${dateFmt})`);
+
+                const esqProducao = App.state.cache.producao.filter(p => p.SetorID === App.state.setorEsquadrejadeiraId);
+                const diaProducao = esqProducao.filter(p => p.Data === dateStr);
+                
+                const totalM3Dia = diaProducao.reduce((sum, p) => {
+                    const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                    return sum + (produto ? (p.Quantidade_Chapas * produto.Cubagem_m3) : 0);
+                }, 0);
+
+                this.renderPercentualList('#percDiaContainer', diaProducao, totalM3Dia);
+            },
+            
+            updatePercentualMes(mtdProducao, totalM3Mes) {
+                this.renderPercentualList('#percMesContainer', mtdProducao, totalM3Mes);
+            },
+            
+            renderPercentualList(containerSelector, producao, totalM3) {
+                const container = App.utils.$(containerSelector);
+                if (!container) return;
+                
+                if (totalM3 === 0) {
+                    container.innerHTML = '<li>Nenhuma produção no período.</li>';
+                    return;
+                }
+                
+                const m3PorTamanho = producao.reduce((acc, p) => {
+                    const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+                    if (!produto || !produto.Comprimento_m) return acc;
+                    
+                    const tamanhoKey = `${produto.Comprimento_m.toFixed(2)}×${produto.Largura_m.toFixed(2)}×${produto.Bitola_m.toFixed(3)}`;
+                    const m3 = (p.Quantidade_Chapas || 0) * (produto.Cubagem_m3 || 0);
+                    
+                    if (!acc[tamanhoKey]) acc[tamanhoKey] = 0;
+                    acc[tamanhoKey] += m3;
+                    return acc;
+                }, {});
+                
+                const sortedTamanhos = Object.entries(m3PorTamanho).sort(([, a], [, b]) => b - a);
+
+                container.innerHTML = sortedTamanhos.slice(0, 10).map(([tamanho, m3]) => {
+                    const percent = (m3 / totalM3 * 100).toFixed(1);
+                    return `
+                        <li>
+                            <span class="tamanho">${tamanho}</span>
+                            <span class="valor">${m3.toFixed(3)} m³</span>
+                            <span class="percentual">${percent}%</span>
+                        </li>
+                    `;
+                }).join('');
+                
+                if (sortedTamanhos.length > 10) {
+                    container.innerHTML += `<li><a href="#" style="text-align:center; display:block;">+ Ver todos</a></li>`;
+                }
+            }
+        };
+
+
+        // Funções globais
+        function testarConexao() { App.logic.conectarBanco(); }
+        function abrirModalProduto() {
+            App.state.editingProduct = null;
+            App.utils.setText('#tituloModalProduto', 'Novo Produto');
+            ['modalCodigo', 'modalDescricao', 'modalComprimento', 'modalLargura', 'modalBitola', 'modalFamiliaID'].forEach(id => App.utils.$(`#${id}`).value = '');
+            App.ui.toggleModal('modalProduto', true);
+        }
+        function abrirModalTurno() {
+            App.state.editingTurno = null;
+            App.utils.setText('#tituloModalTurno', 'Novo Turno');
+            App.utils.$('#modalNomeTurno').value = '';
+            App.ui.toggleModal('modalTurno', true);
+        }
+        function fecharModal(modalId) { App.ui.toggleModal(modalId, false); }
+        function toggleSelect(selectId) {
+            const select = App.utils.$(`#${selectId}`);
+            if (select) select.style.display = select.style.display === 'none' ? 'block' : 'none';
+        }
+        function editarProduto(id) {
+            const p = App.state.cache.produtos.find(p => p.ProdutoID == id);
+            if (!p) return;
+            App.state.editingProduct = id;
+            App.utils.setText('#tituloModalProduto', 'Editar Produto');
+            App.utils.$('#modalCodigo').value = p.Codigo;
+            App.utils.$('#modalDescricao').value = p.Descricao;
+            App.utils.$('#modalComprimento').value = p.Comprimento_m;
+            App.utils.$('#modalLargura').value = p.Largura_m;
+            App.utils.$('#modalBitola').value = p.Bitola_m;
+            App.utils.$('#modalFamiliaID').value = p.FamiliaID;
+            App.ui.toggleModal('modalProduto', true);
+        }
+        function editarTurno(id) {
+            const t = App.state.cache.turnos.find(t => t.TurnoID == id);
+            if (!t) return;
+            App.state.editingTurno = id;
+            App.utils.setText('#tituloModalTurno', 'Editar Turno');
+            App.utils.$('#modalNomeTurno').value = t.TurnoNome;
+            App.ui.toggleModal('modalTurno', true);
+        }
+        async function excluirProduto(id) {
+            if (confirm('Deseja realmente excluir este produto?')) {
+                try {
+                    const result = await App.utils.apiCall(`/produtos/${id}`, { method: 'DELETE' });
+                    App.ui.showNotification(result.message);
+                    App.logic.loadProdutos();
+                } catch (error) {}
+            }
+        }
+        async function excluirTurno(id) {
+            if (confirm('Deseja realmente excluir este turno?')) {
+                App.ui.showNotification("Exclusão de turnos não implementada no servidor", 'warning');
+            }
+        }
+        function salvarProduto() { App.logic.salvarProduto(); }
+        function salvarTurno() { App.logic.salvarTurno(); }
+        function registrarProducao() { App.logic.registrarProducao(); }
+        function registrarDescarte() { App.logic.descarte.registrar(); }
+        function aplicarFiltros() { App.logic.aplicarFiltros(); }
+        function limparFiltros() { App.logic.limparFiltros(); }
+        function exportarResultadosConsulta(tipo) { App.logic.exportarResultadosConsulta(tipo); }
+        function exportarProdutos() { App.ui.showNotification('Funcionalidade de exportação em desenvolvimento', 'info'); }
+        function exportarTurnos() { App.ui.showNotification('Funcionalidade de exportação em desenvolvimento', 'info'); }
+        function exportarRelatorio(tipo) { App.ui.showNotification(`Exportando relatório ${tipo}...`, 'info'); }
+        function importarArquivo() {
+            if (!App.utils.$('#fileInput').files[0]) return App.ui.showNotification('Selecione um arquivo', 'warning');
+            App.ui.showNotification('Funcionalidade de importação em desenvolvimento', 'info');
+        }
+
+        function abrirModalEditarProducao(id) {
+            const p = App.state.cache.producao.find(p => p.ProducaoID == id);
+            if (!p) return App.ui.showNotification('Lançamento não encontrado!', 'error');
+
+            const produto = App.state.cache.produtos.find(prod => prod.ProdutoID === p.ProdutoID);
+            App.state.editingProducao = id;
+
+            App.ui.populateSelect('modalEditarTurno', App.state.cache.turnos, 'TurnoID', 'TurnoNome');
+            App.utils.setText('#tituloModalEditarProducao', `Editar Lançamento #${id}`);
+            App.utils.setText('#modalEditarProducaoDescricao', produto ? `${produto.Codigo} - ${produto.Descricao}` : 'Produto não encontrado');
+            App.utils.$('#modalEditarQuantidade').value = p.Quantidade_Chapas;
+            App.utils.$('#modalEditarTurno').value = p.TurnoID;
+            App.utils.$('#modalEditarData').value = p.Data;
+            
+            App.ui.toggleModal('modalEditarProducao', true);
+        }
+
+        async function salvarProducaoEditada() {
+            const producaoID = App.state.editingProducao;
+            if (!producaoID) return;
+
+            const payload = {
+                Quantidade_Chapas: parseInt(App.utils.getValue('#modalEditarQuantidade'), 10),
+                TurnoID: parseInt(App.utils.getValue('#modalEditarTurno'), 10),
+                Data: App.utils.getValue('#modalEditarData'),
+            };
+            
+            if (!payload.Quantidade_Chapas || !payload.TurnoID || !payload.Data || payload.Quantidade_Chapas <= 0) {
+                return App.ui.showNotification('Por favor, preencha todos os campos corretamente.', 'error');
+            }
+            
+            try {
+                const result = await App.utils.apiCall(`/producao/${producaoID}`, { method: 'PUT', body: JSON.stringify(payload) });
+                App.ui.showNotification(result.message);
+                App.ui.toggleModal('modalEditarProducao', false);
+                App.state.editingProducao = null;
+                
+                await App.logic.loadProducao();
+                
+                if (App.utils.$('#esquadrejadeira').classList.contains('active')) {
+                    App.logic.renderEsqDoDia();
+                } else {
+                    App.logic.renderProducaoDoDia();
+                }
+            } catch (error) {
+                console.warn(`MODO DE SIMULAÇÃO (PUT /producao/${producaoID}): `, error);
+                const index = App.state.cache.producao.findIndex(p => p.ProducaoID === producaoID);
+                if (index !== -1) {
+                    App.state.cache.producao[index] = { ...App.state.cache.producao[index], ...payload };
+                    App.ui.showNotification("Alteração simulada com sucesso (apenas local).");
+                    App.ui.toggleModal('modalEditarProducao', false);
+                    App.state.editingProducao = null;
+                    if (App.utils.$('#esquadrejadeira').classList.contains('active')) {
+                        App.logic.renderEsqDoDia();
+                    } else {
+                        App.logic.renderProducaoDoDia();
+                    }
+                }
+            }
+        }
+
+        function excluirProducao(id) {
+            const confirmModal = App.utils.$('#confirmModal');
+            const confirmOk = App.utils.$('#confirmOk');
+            if (!confirmModal || !confirmOk) return;
+
+            App.utils.setText('#confirmModalTitle', 'Confirmar Exclusão');
+            App.utils.setText('#confirmModalText', `Tem certeza que deseja excluir o lançamento #${id}? Esta ação não pode ser desfeita.`);
+            
+            confirmOk.onclick = () => confirmarExclusaoProducao(id);
+            
+            App.ui.toggleModal('confirmModal', true);
+        }
+        
+        async function confirmarExclusaoProducao(id) {
+            try {
+                const result = await App.utils.apiCall(`/producao/${id}`, { method: 'DELETE' });
+                App.ui.showNotification(result.message);
+                
+                const index = App.state.cache.producao.findIndex(p => p.ProducaoID == id);
+                if (index > -1) {
+                    App.state.cache.producao.splice(index, 1);
+                }
+                
+                if (App.utils.$('#esquadrejadeira').classList.contains('active')) {
+                    App.logic.renderEsqDoDia();
+                } else {
+                    App.logic.renderProducaoDoDia();
+                }
+
+                App.logic.loadDashboard();
+
+            } catch (error) {
+                console.error('Erro ao excluir produção:', error);
+                App.ui.showNotification('Falha ao excluir. Verifique a conexão e tente novamente.', 'error');
+            } finally {
+                App.ui.toggleModal('confirmModal', false);
+            }
+        }
+
+        async function exportarPrintGerencial() {
+            App.ui.showLoading(true);
+            App.ui.showNotification('Gerando prints... Por favor, aguarde.', 'info');
+
+            const gerencialTab = App.utils.$('#gerencial');
+            const allSections = Array.from(gerencialTab.querySelectorAll('.gerencial-section'));
+            const originalDisplays = new Map();
+            allSections.forEach(el => originalDisplays.set(el, el.style.display));
+
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const dateString = `${day}-${month}-${year}`;
+
+            const downloadCanvas = (canvas, filename) => {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            };
+            
+            const capturePart = async (sectionsToShow) => {
+                allSections.forEach(el => el.style.display = 'none');
+                sectionsToShow.forEach(id => {
+                    const el = App.utils.$(id);
+                    if (el) el.style.display = 'block';
+                });
+
+                const canvas = await html2canvas(gerencialTab, {
+                    useCORS: true,
+                    scale: 1.5,
+                    scrollY: -window.scrollY
+                });
+                
+                return canvas;
+            };
+
+            try {
+                const canvas1 = await capturePart(['#totaisGeraisDia', '#mediasMes']);
+                downloadCanvas(canvas1, `gerencial_parte1_${dateString}.png`);
+
+                const canvas2 = await capturePart(['#secao1T', '#secao2T', '#secao3ElevEsteira', '#gerencial > .gerencial-section:last-of-type']);
+                downloadCanvas(canvas2, `gerencial_parte2_${dateString}.png`);
+
+                App.ui.showNotification('✅ Prints gerados com sucesso!', 'success');
+            } catch (error) {
+                console.error('Erro ao gerar os prints:', error);
+                App.ui.showNotification('Ocorreu um erro ao gerar os prints.', 'error');
+            } finally {
+                allSections.forEach(el => el.style.display = originalDisplays.get(el) || '');
+                App.ui.showLoading(false);
+            }
+        }
+
+        async function exportarPrintGerencialAcabamento() {
+            App.ui.showLoading(true);
+            App.ui.showNotification('Gerando print do Gerencial de Acabamento...', 'info');
+
+            const gerencialAcabamentoTab = App.utils.$('#gerencial-acabamento');
+
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const year = today.getFullYear();
+            const dateString = `${day}-${month}-${year}`;
+
+            const downloadCanvas = (canvas, filename) => {
+                const link = document.createElement('a');
+                link.download = filename;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            };
+
+            try {
+                const canvas = await html2canvas(gerencialAcabamentoTab, {
+                    useCORS: true,
+                    scale: 1.5,
+                    scrollY: -window.scrollY
+                });
+
+                downloadCanvas(canvas, `gerencial_acabamento_${dateString}.png`);
+                App.ui.showNotification('✅ Print gerado com sucesso!', 'success');
+
+            } catch (error) {
+                console.error('Erro ao gerar o print do Gerencial Acabamento:', error);
+                App.ui.showNotification('Ocorreu um erro ao gerar o print.', 'error');
+            } finally {
+                App.ui.showLoading(false);
+            }
+        }
+
+        window.addEventListener('load', () => App.init());
+    
+        document.addEventListener('DOMContentLoaded', function () {
+            const PROD_TAB_ID = 'produtos';
+            const PROD_HASH = '#' + PROD_TAB_ID;
+
+            const deveAtivarProdutos = (location.hash === PROD_HASH) 
+                || (new URLSearchParams(location.search).get('tab') === PROD_TAB_ID);
+
+            if (deveAtivarProdutos) {
+                if (typeof App?.switchTab === 'function') {
+                    document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    
+                    document.querySelector(`[data-tab="${PROD_TAB_ID}"]`).classList.add('active');
+                    App.utils.$(`#${PROD_TAB_ID}`).classList.add('active');
+                }
+                
+                const campoBusca = document.getElementById('buscarProduto');
+                if (campoBusca) {
+                    setTimeout(() => campoBusca.focus(), 100);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+
