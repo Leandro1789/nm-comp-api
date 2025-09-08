@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 /**
- * API Produção – NM Compensados
+ * API Produção — NM Compensados
  * Server completo (Express + Postgres) com compatibilidade de variáveis Railway.
  */
 
@@ -67,21 +67,53 @@ async function q(text, params = []) {
 
 /* ---------------------------[ APP SETUP ]---------------------------- */
 const app = express();
+
+// ===== CORREÇÃO CORS DEFINITIVA =====
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  
+  // Domínios permitidos
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'https://claude.ai',
+    'https://2jq45so7ico1eojxltrk41ixe2lmjspb2osb676c71yhts577c-h802130808.scf.usercontent.goog',
+    // Adicione aqui os domínios do seu frontend quando publicar
+    'https://seu-frontend.netlify.app',
+    'https://seu-frontend.vercel.app'
+  ];
+  
+  // Se tem origins configurados via env, adiciona eles
+  if (CORS_RAW) {
+    const corsOrigins = CORS_RAW.split(",").map(s => s.trim()).filter(Boolean);
+    allowedOrigins.push(...corsOrigins);
+  }
+  
+  // Se o origin está na lista ou se não há origin (requisições diretas)
+  if (!origin || allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin || '*');
+  }
+  
+  // Headers necessários para CORS
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Max-Age', '3600');
+  
+  // Responde imediatamente a requisições OPTIONS (preflight)
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
+console.log('🔒 CORS configurado para múltiplos domínios');
+
 app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(compression());
 app.use(express.json({ limit: "1mb" }));
 app.use(morgan(process.env.LOG_FORMAT || "tiny"));
-
-const allowList = CORS_RAW.split(",").map(s => s.trim()).filter(Boolean);
-app.use(
-  cors({
-    origin: (origin, cb) => {
-      if (!origin) return cb(null, true);
-      if (allowList.length === 0 || allowList.includes(origin)) return cb(null, true);
-      return cb(new Error("CORS bloqueado"), false);
-    },
-  })
-);
 
 app.use(
   rateLimit({
@@ -190,6 +222,34 @@ app.get("/healthz", async (_req, res) => {
 });
 app.get("/version", (_req, res) => res.json({ app: APP_NAME, version: "1.0.0" }));
 app.get("/test-connection", (_req, res) => res.json({ message: "API funcionando 🚀" }));
+
+// Endpoints de debug
+app.get("/debug", (req, res) => {
+  res.json({
+    message: "Debug endpoint funcionando",
+    timestamp: new Date().toISOString(),
+    headers: {
+      origin: req.headers.origin,
+      'user-agent': req.headers['user-agent'],
+      host: req.headers.host
+    },
+    environment: {
+      NODE_ENV: process.env.NODE_ENV,
+      PORT: PORT,
+      HAS_DATABASE_URL: !!RAW_URL,
+      CORS_CONFIGURED: !!CORS_RAW
+    }
+  });
+});
+
+app.get("/cors-test", (req, res) => {
+  res.json({ 
+    message: "CORS teste OK",
+    origin: req.headers.origin,
+    method: req.method,
+    timestamp: new Date().toISOString()
+  });
+});
 
 /* -----------------------------[ LOOKUPS ]---------------------------- */
 app.get("/turnos", async (_req, res, next) => {
