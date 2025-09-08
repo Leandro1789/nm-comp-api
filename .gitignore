@@ -1,12 +1,12 @@
-# Arquivos de configuração e credenciais
+# Ambiente e credenciais
 .env
 
-# Banco de dados local (não precisa no repositório)
+# Banco de dados locais
 *.db
 *.db-shm
 *.db-wal
 
-# Dependências do Node.js (podem ser reinstaladas com npm install)
+# Dependências Node.js (recriado com npm install)
 node_modules/
 módulos_nó/
 
@@ -16,10 +16,8 @@ módulos_nó/
 # Arquivos temporários
 *.tmp
 *.temp
+
+# Cache do sistema operacional
 .DS_Store
 Thumbs.db
 
-# Compilações e cache
-dist/
-build/
-.cache/
